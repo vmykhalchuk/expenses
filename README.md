@@ -12,4 +12,6 @@
 1. Setup Clasp
     1. See instructions: https://developers.google.com/apps-script/guides/clasp
         * npm install @google/clasp -g
-
+1. Enable the Apps Script API
+    1. Visit https://script.google.com/home/usersettings
+	1. wait before calling ```gitToGas.bat``` for few minutes for changes to propagate
