@@ -1,7 +1,6 @@
 // 
 // THIS IS A TEST VERSION!!!
 //
-// This is ment to be modified wildly!!!
 
 function processMonoMessage(jsonObjStr) {
   var jsonObj = JSON.parse(jsonObjStr);

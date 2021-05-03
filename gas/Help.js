@@ -1,8 +1,3 @@
-// 
-// THIS IS A TEST VERSION!!!
-//
-// This is ment to be modified wildly!!!
-
 /* Here I collect all recipies for quick access
 
 unicode emoji:

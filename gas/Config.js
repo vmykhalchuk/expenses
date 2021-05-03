@@ -1,8 +1,3 @@
-// 
-// THIS IS A TEST VERSION!!!
-//
-// This is ment to be modified wildly!!!
-
 // unicode emoji: https://emojipedia.org/hammer-and-wrench/
 var _c = {
   mono: {
