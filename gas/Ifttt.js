@@ -1,3 +1,8 @@
+// 
+// THIS IS A TEST VERSION!!!
+//
+// This is ment to be modified wildly!!!
+
 var _ifttt = {
   
   handleSmsReceived: function(smsText) {

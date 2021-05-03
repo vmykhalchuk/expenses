@@ -1,3 +1,8 @@
+// 
+// THIS IS A TEST VERSION!!!
+//
+// This is ment to be modified wildly!!!
+
 /**
 Usage is simple:
 - multiPropertiesLock.waitLock("<lock_name>", <waitTimeMs>, <maxLockAgeMs>)
