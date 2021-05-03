@@ -11,7 +11,7 @@
     1. **Note:** use Notepad++ or any other editor that preserves line endings as they are
 1. Setup Clasp
     1. See instructions: https://developers.google.com/apps-script/guides/clasp
-        * npm install @google/clasp -g
+        * ```npm install @google/clasp -g```
 1. Login to Clasp
     * execute ```clasp login```
 1. Enable the Apps Script API
