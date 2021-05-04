@@ -11,7 +11,7 @@
     1. **Note:** use Notepad++ or any other editor that preserves line endings as they are
 1. Setup Clasp
     1. See instructions: https://developers.google.com/apps-script/guides/clasp
-        * npm install @google/clasp -g
+        * ```npm install @google/clasp -g```
 1. Set proper ScriptId for your user
     1. Get ScriptId from your project (see instructions: https://developers.google.com/apps-script/guides/clasp)
     1. Run setClaspScriptId.bat with scriptId as a first argument
