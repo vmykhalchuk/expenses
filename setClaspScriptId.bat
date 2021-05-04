@@ -1,0 +1,1 @@
+@echo {"scriptId":"%1"} > gas\.clasp.json
