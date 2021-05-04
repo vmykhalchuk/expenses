@@ -1,9 +1,3 @@
-// 
-// THIS IS A TEST VERSION!!!
-//
-// lets see how it works
-// interesting
-
 // README!!!
 // Deploy via: Publish > Deploy as web app...
 //    set "Who has access to the app:" to "Anyone, even anonymous"

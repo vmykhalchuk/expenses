@@ -1,7 +1,3 @@
-// 
-// THIS IS A TEST VERSION!!!
-//
-
 function sheetsStartNextWeek() {
   var weekStartTime = new Date();
   var ss = SpreadsheetApp.getActive();

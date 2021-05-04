@@ -1,7 +1,3 @@
-// 
-// THIS IS A TEST VERSION!!!
-//
-
 function processMonoMessage(jsonObjStr) {
   var jsonObj = JSON.parse(jsonObjStr);
   var statementId = jsonObj && jsonObj.data && jsonObj.data.statementItem ? jsonObj.data.statementItem.id : null;

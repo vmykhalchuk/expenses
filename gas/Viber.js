@@ -1,7 +1,3 @@
-// 
-// THIS IS A TEST VERSION!!!
-//
-
 function doProcessViberMessage(jsonObjStr) {
   var jsonObj = JSON.parse(jsonObjStr);
   var eventType = jsonObj.event;
@@ -295,7 +291,7 @@ var _viber = {
       if (isNaN(newAmount)) {
         throw "Amount is not a valid number!";
       }
-      _sheets.modifyRecordAmount(rowNo, newAmount);
+      _sheets.modifyRecordAmount(rowNo, (-newAmount));
     }
   },
   
