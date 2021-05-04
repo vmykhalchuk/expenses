@@ -12,6 +12,9 @@
 1. Setup Clasp
     1. See instructions: https://developers.google.com/apps-script/guides/clasp
         * npm install @google/clasp -g
+1. Set proper ScriptId for your user
+    1. Get ScriptId from your project (see instructions: https://developers.google.com/apps-script/guides/clasp)
+    1. Run setClaspScriptId.bat with scriptId as a first argument
 1. Login to Clasp
     * execute ```clasp login```
 1. Enable the Apps Script API
