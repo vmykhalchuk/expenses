@@ -5,6 +5,7 @@ rem trim gitmessage from the left (no good to code to trim right)
 for /f "tokens=* delims= " %%a in ("%gitmessage%") do set gitmessage=%%a
 if "!%gitmessage%~" == "!~" goto END
 
+call git pull
 cd gas
 call clasp pull
 cd ..
