@@ -25,6 +25,15 @@ var __testsSuitUtil = {
     assertFalse(util.viber.matchesWordPartially("cashe", "cash"), "cashe");
   },
   
+  parseRawExpenseType: function() {
+    assertEquals("house", util.viber.parseRawExpenseType("house").expType);
+    assertEquals("misc", util.viber.parseRawExpenseType("house:mi").subType);
+    assertEquals("_none", util.viber.parseRawExpenseType("none").expType);
+    assertEquals("_none", util.viber.parseRawExpenseType("no").expType);
+    assertEquals("_other", util.viber.parseRawExpenseType("Other").expType);
+    //assertEquals("_other", util.viber.parseRawExpenseType("ho:uuu").expType);
+  },
+  
   viberCorrectExpType: function() {
     assertEquals("_none", util.viber.viberCorrectExpType("none"));
     assertEquals("_week", util.viber.viberCorrectExpType("week"));

@@ -9,18 +9,9 @@ function doProcessViberMessage(jsonObjStr) {
   var messageTrackingData = jsonObj.message ? jsonObj.message["tracking_data"] : null;
   console.log("messageToken: " + messageToken);
   
-  // check if cache contains this message already
-  {
-    var cache = CacheService.getScriptCache();
-    var cacheKey = "Viber-message-" + messageToken;
-    if (cache.get(cacheKey) != null) {
-      console.warn("Duplicate viber message received: " + messageToken);
-      return;
-    }
-    var lock = LockService.getScriptLock();
-    lock.waitLock(5000);
-    cache.put(cacheKey, "MSG", 5*60);
-    lock.releaseLock();
+  if (util.gas.checkIfTokenRepeats(messageToken, "Viber-message-")) {
+    console.warn("Duplicate viber message received: " + token);
+    return;
   }
   
   try {
@@ -68,7 +59,7 @@ var _viber = {
     if (!cmdObj.name) cmdObj.name = util.comm.capitalize(cmdKey);
     if (!cmdObj.helpCmdName) cmdObj.helpCmdName = cmdKey;
     if (cmdObj.underConstruction) {
-      cmdObj.helpCmdName = "🚧" + cmdObj.helpCmdName + "🚧";
+      cmdObj.helpCmdName = "🚧" + cmdObj.helpCmdName;
     }
     if (!cmdObj.description) cmdObj.description = "🚧 no description yet";
     if (!cmdObj.usage) cmdObj.usage = "🚧 no usage yet";
@@ -148,18 +139,29 @@ var _viber = {
   */
   
   _help: {
-    name: "💡Help"
+    name: "💡Help",
+    description: "Display list of commands, or usage and description of command",
+    usage: "h[elp] [<command>]"
   },
   
   _processHelpCommand: function(cmdObj, request) {
-    var usageMsg = "";
-    for (var cmdKey in this._viberBotCommands) {
-      var helpCmdName = this._getCmdObject(cmdKey).helpCmdName;
-      usageMsg += usageMsg == "" ? "" : ", ";
-      usageMsg += helpCmdName ? helpCmdName : cmdKey;
-    }
+    var cmdHelpObj = request.wordsLC.length > 1 ? this.supportedCommand(request.wordsLC[1]) : null;
     
-    this.sendReplyToViberBotUser(request.senderId, usageMsg, cmdObj.name);
+    if (cmdHelpObj) {
+      var cmdHelpMessage = "" + cmdHelpObj.usage + "\n_" + cmdHelpObj.description + "_";
+      
+      this.sendReplyToViberBotUser(request.senderId, cmdHelpMessage, cmdHelpObj.name);
+      
+    } else {
+      var usageMsg = "";
+      for (var cmdKey in this._viberBotCommands) {
+        var helpCmdName = this._getCmdObject(cmdKey).helpCmdName;
+        usageMsg += usageMsg == "" ? "" : ", ";
+        usageMsg += helpCmdName ? helpCmdName : cmdKey;
+      }
+      
+      this.sendReplyToViberBotUser(request.senderId, usageMsg, cmdObj.name);
+    }
   },
   
   _cash: {
@@ -251,7 +253,7 @@ var _viber = {
     name: "✏Edit",
     helpCmdName: "✏edit",
     description: "Let's you modify expensetType and description of the record",
-    usage: "e[dit] <rowNo|last> <expType> [<description>]"
+    usage: "e[dit] <rowNo|last> [<expType>] [<description>]"
   },
   
   _processEditCommand: function(cmdObj, req) {
@@ -267,9 +269,17 @@ var _viber = {
         throw "First argument must be a row number or ```last``` keyword!";
       }
       // FIXME implement validation of expense types!
-      var newExpType = util.viber.viberCorrectExpType(req.words[2]);
-      var newMyComment = util.viber.getDescriptionFromCommandWords(req.words, 3);
-      _sheets.modifyRecord(rowNo, newExpType, newMyComment);
+      var expTypeObj = null;
+      try {
+        expTypeObj = util.viber.parseRawExpenseType(req.words[2]);
+      } catch(err) {
+      }
+      var newExpType = expTypeObj ? expTypeObj.expType : null;
+      var newHouseSubType = (newExpType === "house" && expTypeObj) ? expTypeObj.subType : null;
+      var newMiscSubType = (newExpType === "misc" && expTypeObj) ? expTypeObj.subType : null;
+      console.log("subType: " + newHouseSubType);
+      var newMyComment = util.viber.getDescriptionFromCommandWords(req.words, newExpType ? 3 : 2);
+      _sheets.modifyRecord(rowNo, newExpType, newMyComment, newHouseSubType, newMiscSubType);
     }
   },
   
@@ -297,7 +307,7 @@ var _viber = {
   
   _last: {
     usage: "l[ast] [help|<rowsN>] [<expense_type>|all]",
-    description: "View last transactions"
+    description: "View last transactions, filter if needed"
   },
   
   _processLastCommand: function(cmdObj, req) {
@@ -349,7 +359,10 @@ var _viber = {
         var expTypeStr = util.viber.augmentExpType(rows[i].expType);
         var dateTimeStr = util.viber.timeToUnicodeDisplayText(rows[i].txDate);
         var amountStr = rows[i].amount ? rows[i].amount + "₴" : "-";
-        text += "◦" + txTypeStr + amountStr + " *" + expTypeStr + "* " + dateTimeStr + " " + rows[i].fullDescription + " _[#" + rows[i].inTxRowNo + "]_";
+        text += "◦" + txTypeStr + amountStr + " *" + expTypeStr + "* " + dateTimeStr + " " + rows[i].fullDescription;
+        if (rows[i].inTxRowNo) {
+          text += " _[#" + rows[i].inTxRowNo + "]_";
+        }
       }
     }
     if (lastInTxRows.timedOut) {
@@ -358,7 +371,7 @@ var _viber = {
     var newTrackingData = rows[0] ? ("last " + rows[0].inTxRowNo + " " + rows.length) : "";
     var sendReplyTimeStart = new Date().getTime();
     _viber.sendReplyToViberBotUser(senderId, text, cmdName, newTrackingData);
-    if (false) {
+    if (false/*debug: show how long it executes*/) {
       var sendReplyTime = new Date().getTime() - sendReplyTimeStart;
       var processTime = new Date().getTime() - startTime;
       var timerMessage = "Took: " + sendReplyTime + "ms to send. General took: " + processTime + "ms";
@@ -440,6 +453,23 @@ var _viber = {
     } else {
       throw "Wrong command syntaxys"
     }
+  },
+  
+  _man: {
+    name: "Man-ual",
+    description: "Displays available expense types, sub-types",
+    usage: "m[an]"
+  },
+  
+  _processManCommand: function(cmdObj, request) {
+    var startTime = new Date().getTime();
+    var manualMsg = "*Expense Types:* " + _sheets.getListOfExpenseTypes().join(", ");
+    manualMsg += "\n*House Sub Types:* " + _sheets.getListOfHouseSubTypes().join(", ");
+    manualMsg += "\n*Misc Sub Types:* " + _sheets.getListOfMiscSubTypes().join(", ");
+    var tookMs = new Date().getTime() - startTime;
+    manualMsg += "\n*Took: " + tookMs + "ms*";
+    
+    this.sendReplyToViberBotUser(request.senderId, manualMsg, cmdObj.name);
   },
   
   _admin: {

@@ -1,8 +1,29 @@
+var _util_cache = {};
+
 var util = {
   comm: {
     capitalize: function(s) {
       if (typeof s !== "string") return "";
       return s.charAt(0).toUpperCase() + s.slice(1);
+    },
+    
+    evalLocalCache: function(key, evalFunc) {
+      if (!_util_cache[key]) {
+        _util_cache[key] = evalFunc.call();
+      }
+      return _util_cache[key];
+    },
+    
+    evalCache: function(key, evalFunc) {
+      if (!_util_cache[key]) {
+        var cacheRes = CacheService.getScriptCache().get(key);
+        if (!cacheRes) {
+          cacheRes = evalFunc.call();
+          CacheService.getScriptCache().put(key, cacheRes, 21600 /*6h*/);
+        }
+        _util_cache[key] = cacheRes;
+      }
+      return _util_cache[key];
     }
   },
   
@@ -26,6 +47,28 @@ var util = {
       // webAppUrl is /dev not /exec, however it should work for now (unless DriveApp auth scope is not included, see few lines above)
       var webAppUrlDev = ScriptApp.getService().getUrl() + "?access_token=" + ScriptApp.getOAuthToken();
       return webAppUrlDev;
+    },
+    
+    // if (util.gas.checkIfTokenRepeats(token, "Viber-message-")) {
+    //   console.warn("Duplicate viber message received: " + token);
+    //   throw "error";
+    // }
+    checkIfTokenRepeats: function(token, cachePref) {
+      // check if cache contains this token already
+      var cache = CacheService.getScriptCache();
+      var cacheKey = cachePref + token;
+      if (cache.get(cacheKey) != null) {
+        return true;
+      }
+      var lock = LockService.getScriptLock();
+      lock.waitLock(5000);
+      // check again
+      if (cache.get(cacheKey) != null) {
+        return true;
+      }
+      cache.put(cacheKey, "MSG");
+      lock.releaseLock();
+      return false;
     }
   },
   
@@ -116,6 +159,70 @@ var util = {
       return true;
     },
     
+    matchesOneOfTheWordsInListPartially: function(str, listOfWords) {
+      for (var i = 0; i < listOfWords.length; i++) {
+        if (this.matchesWordPartially(str, listOfWords[i])) {
+          return listOfWords[i];
+        }
+      }
+      return null;
+    },
+    
+    matchesOneOfTheWordsInMapKeysPartially: function(str, mapOfWords) {
+      for (var k in mapOfWords) {
+        if (this.matchesWordPartially(str, k)) {
+          return k;
+        }
+      }
+      return null;
+    },
+    
+    // returns: {expType: "<expType>", expTypeUserFriendly: "<expTypeNoUnderscores>", subType: "<subType>"}
+    parseRawExpenseType: function(expTypeStr) {
+      var separatorIndx = expTypeStr.indexOf(":") == -1 ? expTypeStr.indexOf(".") : expTypeStr.indexOf(":");
+      var mainTypeStr = separatorIndx == -1 ? expTypeStr : expTypeStr.substring(0, separatorIndx);
+      var subTypeStr = separatorIndx == -1 ? "" : expTypeStr.substring(separatorIndx + 1);
+      mainTypeStr = mainTypeStr.trim().toLowerCase();
+      subTypeStr = subTypeStr.trim().toLowerCase();
+      
+      var res = {};
+      
+      var expTypeUserFriendly = this.matchesOneOfTheWordsInMapKeysPartially(mainTypeStr, this.getUserFriendlyMapOfExpenseTypes());
+      if (!expTypeUserFriendly) throw "Wrong expense type: " + expTypeStr;
+      
+      res["expTypeUserFriendly"] = expTypeUserFriendly;
+      res["expType"] = this.getUserFriendlyMapOfExpenseTypes()[expTypeUserFriendly];
+      
+      if (subTypeStr !== "" && expTypeUserFriendly === "house") {
+        var houseSubTypes = _sheets.getListOfHouseSubTypes();
+        var subType = this.matchesOneOfTheWordsInListPartially(subTypeStr, houseSubTypes);
+        if (!subType) throw "Wrong sub type: " + subTypeStr;
+        res["subType"] = subType;
+      } else if (subTypeStr !== "" && expTypeUserFriendly === "misc") {
+        var miscSubTypes = _sheets.getListOfMiscSubTypes();
+        var subType = this.matchesOneOfTheWordsInListPartially(subTypeStr, miscSubTypes);
+        if (!subType) throw "Wrong sub type: " + subTypeStr;
+        res["subType"] = subType;
+      }
+      
+      return res;
+    },
+    
+    getUserFriendlyMapOfExpenseTypes: function() {
+      var thiz = this;
+      var lambda = () => {
+        var expenseTypes = _sheets.getListOfExpenseTypes();
+        var res = new Object();
+        expenseTypes.forEach(el => (res[thiz._expenseTypeToUserFriendlyExpType(el)] = el));
+        return res;
+      };
+      return util.comm.evalLocalCache("userFriendlyListOfExpenseTypes", lambda);
+    },
+    
+    _expenseTypeToUserFriendlyExpType: function(expType) {
+      return expType.replace(/_/g, '');
+    },
+    
     viberCorrectExpType: function(expType) {
       if (_c.expTypes[expType]) {
         return _c.expTypes[expType];
@@ -126,7 +233,7 @@ var util = {
     
     getDescriptionFromCommandWords: function(words, startingFromWordNo) {
       if (startingFromWordNo >= words.length) {
-        return "";
+        return null;
       }
       var description = "";
       for (var i = startingFromWordNo; i < words.length; i++) {

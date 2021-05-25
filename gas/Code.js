@@ -199,7 +199,8 @@ function onMenuHelp() {
 function onMenuTest() {
   //SpreadsheetApp.getActiveSpreadsheet().toast('Task started', 'Status', -1);
   var ui = SpreadsheetApp.getUi();
-  ui.alert("Test!!!\n" + SpreadsheetApp.getActive().getRange("Data!A55").getValue());
+  ui.alert("" + util.viber.parseRawExpenseType("mi:bod").subType);
+  //ui.alert("Test!!!\n" + SpreadsheetApp.getActive().getRange("Data!A55").getValue());
 
   //ui.alert("isRange: " + (SpreadsheetApp.getActive().getRange("InTx!A1") == "Range"));
 }

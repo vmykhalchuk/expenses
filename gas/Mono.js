@@ -2,23 +2,15 @@ function processMonoMessage(jsonObjStr) {
   var jsonObj = JSON.parse(jsonObjStr);
   var statementId = jsonObj && jsonObj.data && jsonObj.data.statementItem ? jsonObj.data.statementItem.id : null;
   
+  // check if cache contains this message already
+  if (util.gas.checkIfTokenRepeats(statementId, "Mono-tx-statementId-")) {
+    console.warn("Duplicate mono tx received: " + statementId);
+    return;
+  }
+  
   var monoTxRowNo = _sheets.recordMonoTx(jsonObjStr, statementId);
   
-  var isDuplicate = true;
-  var acquired = multiPropertiesLock.waitLock("MonoLock", 30*1000, 15*60*1000); // wait for 30sec, max lock age is 15min - longer then this will be bad
-  try {
-    if (!acquired) {
-      console.error("Couldn't acquire MonoLock!");
-    }
-    isDuplicate = _sheets.searchForDuplicateMonoTx(statementId, monoTxRowNo);
-  } finally {
-    if (acquired) {
-      multiPropertiesLock.releaseLock("MonoLock");
-    }
-  }
-  if (!isDuplicate) {
-    processMonoMessageAsyncHandler(monoTxRowNo, jsonObj, jsonObjStr);
-  }
+  processMonoMessageAsyncHandler(monoTxRowNo, jsonObj, jsonObjStr);
   
   //Async.call("processMonoMessageAsyncHandler", monoTxRowNo, jsonObj, jsonObjStr);
   //_sheets.setMonoTxStatus(monoTxRowNo,"SCHEDULED");
@@ -46,13 +38,17 @@ function processMonoMessageAsyncHandler(monoTxRowNo, jsonObj, jsonObjStr) {
   if (statementItem) {
     if (c_AccMonoWhite === data.account) {
       rowObj.txType = _c.txTypes.monoWhite;
-      if (statementItem.mcc === 4829 && statementItem.amount > 0 && statementItem.description === "Від: Кредо #2") {
+      if (statementItem.amount > 0
+          && statementItem.mcc === _c.mono.topUpFromKredo.mcc
+          && statementItem.description === _c.mono.topUpFromKredo.description) {
         registerKredoBlackKredit = true;
         rowObj.expType = _c.expTypes.none; // цей пеймент це поповнення з кредо картки - не враховуємо в витрати це
         //rowObj.registered = "y";
         rowObj.myComment = "поповнення з Кредобанківської картки";
       }
-      if (statementItem.mcc === 4829 && statementItem.amount < 0 && statementItem.description === "На ремонт хонди") {
+      if (statementItem.amount < 0
+          && statementItem.mcc === _c.mono.autoRounding.mcc
+          && statementItem.description === _c.mono.autoRounding.description) {
         // не реєструємо ці відрахування взагалі
         skipRecord = true;
         //rowObj.expType = _c.expTypes.none; // цей пеймент це відрахування в банку - не враховуємо в витрати це
@@ -79,10 +75,10 @@ function processMonoMessageAsyncHandler(monoTxRowNo, jsonObj, jsonObjStr) {
   _sheets.setMonoTxStatus(monoTxRowNo,"STEP1");
   
   if (c_AccMonoWhite === data.account && rowObj.monoBalance) {
-    recordBalance(rowObj.monoBalance, "Mono_white_balance");
+    recordBalance(rowObj.monoBalance, _c.sheets.nr.balance.monoWhite);
   }
   if (c_AccMonoBlack === data.account && rowObj.monoBalance) {
-    recordBalance(rowObj.monoBalance, "Mono_black_balance");
+    recordBalance(rowObj.monoBalance, _c.sheets.nr.balance.monoBlack);
   }
   
   _sheets.setMonoTxStatus(monoTxRowNo,"STEP2");

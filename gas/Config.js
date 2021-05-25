@@ -2,7 +2,15 @@
 var _c = {
   mono: {
     whiteCardAccId: "W_lPmQPxdqFR_QuIqyy8JQ",
-    blackCardAccId: "GxdGoQDsS9V9haSkeGrx6g"
+    blackCardAccId: "GxdGoQDsS9V9haSkeGrx6g",
+    topUpFromKredo: {
+      mcc: 4829,
+      description: "Від: 516804****3878"
+    },
+    autoRounding: {
+      mcc: 4829,
+      description: "На ремонт хонди"
+    }
   },
   txTypes: {
     monoWhite: "mono-white",
@@ -88,6 +96,9 @@ var _c = {
       },
       inTxSummary: "IN_TX_SUMMARY",
       config: {
+        expenseTypes: "C_EXP_TYPES",
+        houseSubTypes: "C_HOUSE_SUB_TYPES",
+        miscSubTypes: "C_MISC_SUB_TYPES",
         currentWeekStart: "C_CURR_WEEK_START"
       }
     }

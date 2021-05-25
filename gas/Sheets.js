@@ -144,7 +144,7 @@ var _sheets = {
           var fullDescription = util.sheets.calculateFullDescription(displayValues[i][monoDescriptionColNo],
                                                                      displayValues[i][monoCommentColNo], displayValues[i][myCommentColNo]);
           var row = {
-            inTxRowNo: rowTo - i,
+            inTxRowNo: goingThroughArchiving ? null : (rowTo - i),
             txDate: values[i][txDateColNo] == "" ? values[i][dateColNo] : values[i][txDateColNo],
             amount: displayValues[i][amountColNo],
             fullDescription: fullDescription,
@@ -177,16 +177,28 @@ var _sheets = {
     return { rows: resultRows, timedOut: timedOut };
   },
   
-  modifyRecord: function(rowNo, newExpType, newMyComment) {
+  modifyRecord: function(rowNo, newExpType, newMyComment, newHouseSubType, newMiscSubType) {
     var ss = SpreadsheetApp.getActive();
     var sheet = ss.getSheetByName(_c.sheets.inTx.name);
     if (!rowNo || isNaN(rowNo) || rowNo < 3 || rowNo > sheet.getLastRow()) {
       throw "Wrong rowNo: " + rowNo;
     }
-    var expTypeRange = sheet.getRange(_c.sheets.inTx.expenseTypeCol + rowNo);
-    this.updateSingleCellWithNewValueAndKeepOldValue(expTypeRange, newExpType, true);
-    var myCommentRange = sheet.getRange(_c.sheets.inTx.myCommentCol + rowNo);
-    this.updateSingleCellWithNewValueAndKeepOldValue(myCommentRange, newMyComment, true);
+    if (newExpType) {
+      var expTypeRange = sheet.getRange(_c.sheets.inTx.expenseTypeCol + rowNo);
+      this.updateSingleCellWithNewValueAndKeepOldValue(expTypeRange, newExpType, true);
+    }
+    if (newMyComment) {
+      var myCommentRange = sheet.getRange(_c.sheets.inTx.myCommentCol + rowNo);
+      this.updateSingleCellWithNewValueAndKeepOldValue(myCommentRange, newMyComment, true);
+    }
+    if (newHouseSubType) {
+      var range = sheet.getRange(_c.sheets.inTx.houseSubTypeCol + rowNo);
+      this.updateSingleCellWithNewValueAndKeepOldValue(range, newHouseSubType, true);
+    }
+    if (newMiscSubType) {
+      var range = sheet.getRange(_c.sheets.inTx.miscSubTypeCol + rowNo);
+      this.updateSingleCellWithNewValueAndKeepOldValue(range, newMiscSubType, true);
+    }
   },
   
   modifyRecordAmount: function(rowNo, newAmount) {
@@ -353,6 +365,39 @@ var _sheets = {
     }
   },
   
+  getListOfExpenseTypes: function() {
+    var str = util.comm.evalCache(
+      "listOfExpenseTypes",
+      () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.expenseTypes).join(',')
+    );
+    return str.split(',');
+  },
+  
+  getListOfHouseSubTypes: function() {
+    var str = util.comm.evalCache(
+      "listOfHouseSubTypes",
+      () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.houseSubTypes).join(',')
+    );
+    return str.split(',');
+  },
+  
+  getListOfMiscSubTypes: function() {
+    var str = util.comm.evalCache(
+      "listOfMiscSubTypes",
+      () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.miscSubTypes).join(',')
+    );
+    return str.split(',');
+  },
+  
+  _getListOfVerticalStrings_int: function(namedRange) {
+    var ss = SpreadsheetApp.getActive();
+    var rangeValues = ss.getRange(namedRange).getDisplayValues();
+    var resArr = new Array();
+    for (var j = 0; j < rangeValues.length; j++) {
+      resArr.push(rangeValues[j][0]);
+    }
+    return resArr;
+  },
   
   recordViberSender: function(senderId, senderName, jsonObjStr, skipFlush) {
     var ss = SpreadsheetApp.getActive();
