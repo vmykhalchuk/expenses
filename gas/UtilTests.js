@@ -31,14 +31,7 @@ var __testsSuitUtil = {
     assertEquals("_none", util.viber.parseRawExpenseType("none").expType);
     assertEquals("_none", util.viber.parseRawExpenseType("no").expType);
     assertEquals("_other", util.viber.parseRawExpenseType("Other").expType);
-    //assertEquals("_other", util.viber.parseRawExpenseType("ho:uuu").expType);
-  },
-  
-  viberCorrectExpType: function() {
-    assertEquals("_none", util.viber.viberCorrectExpType("none"));
-    assertEquals("_week", util.viber.viberCorrectExpType("week"));
-    assertEquals("_other", util.viber.viberCorrectExpType("other"));
-    assertEquals("kycja", util.viber.viberCorrectExpType("kycja"));
+    assertException(() => util.viber.parseRawExpenseType("ho:uuu"), "Wrong sub type: uuu");
   },
   
   testAssertTrue: function() {
@@ -48,7 +41,7 @@ var __testsSuitUtil = {
   mock: {
     funcToTest: function(v1) {
       if (v1 === "failure") {
-        throw "msg";
+        throw "exception msg";
       }
     }
   },
@@ -62,6 +55,12 @@ var __testsSuitUtil = {
     assertException(f,null,"Dummy message here");
     val = "!failure";
     assertNoException(f,"Another Dummy message here");
+  },
+  
+  testAssertException2: function() {
+    var thiz = this;
+    assertException(() => thiz.mock.funcToTest("failure"),"exception msg");
+    assertNoException(() => thiz.mock.funcToTest(""));
   }
 };
 
