@@ -179,6 +179,7 @@ var util = {
     
     // returns: {expType: "<expType>", expTypeUserFriendly: "<expTypeNoUnderscores>", subType: "<subType>"}
     parseRawExpenseType: function(expTypeStr) {
+      if (!expTypeStr) return {};
       var separatorIndx = expTypeStr.indexOf(":") == -1 ? expTypeStr.indexOf(".") : expTypeStr.indexOf(":");
       var mainTypeStr = separatorIndx == -1 ? expTypeStr : expTypeStr.substring(0, separatorIndx);
       var subTypeStr = separatorIndx == -1 ? "" : expTypeStr.substring(separatorIndx + 1);
