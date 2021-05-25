@@ -3,6 +3,7 @@
 ## Windows instructions
 1. Use gasToGit.bat to move code from GAS to GitHub
 1. Use gitToGas.bat to move code from GitHub to GAS
+1. Use gasPull.bat to pull changes from GAS (commit them manually to GitHub later)
 
 ## Setup on Windows
 1. Download from Git
