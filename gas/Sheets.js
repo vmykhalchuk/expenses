@@ -123,6 +123,8 @@ var _sheets = {
     var myCommentColNo = util.sheets.letterToColumn(_c_inTx.myCommentCol) - 1;
     var txTypeColNo = util.sheets.letterToColumn(_c_inTx.txTypeCol) - 1;
     var expenseTypeColNo = util.sheets.letterToColumn(_c_inTx.expenseTypeCol) - 1;
+    var houseSubTypeColNo = util.sheets.letterToColumn(_c_inTx.houseSubTypeCol) - 1;
+    var miscSubTypeColNo = util.sheets.letterToColumn(_c_inTx.miscSubTypeCol) - 1;
     
     
     var resultRows = new Array();
@@ -149,7 +151,9 @@ var _sheets = {
             amount: displayValues[i][amountColNo],
             fullDescription: fullDescription,
             txType: displayValues[i][txTypeColNo],
-            expType: displayValues[i][expenseTypeColNo]
+            expType: displayValues[i][expenseTypeColNo],
+            houseSubType: displayValues[i][houseSubTypeColNo],
+            miscSubType: displayValues[i][miscSubTypeColNo]
           };
           if (filterFunction && !filterFunction(row)) {
             continue;

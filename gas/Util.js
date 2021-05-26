@@ -73,14 +73,28 @@ var util = {
   },
   
   viber: {
-    augmentExpType: function(expType) {
+    augmentExpType: function(expType, houseSubType, miscSubType) {
       if (expType == _c.expTypes.week) return "Ⓦ";
       if (expType && expType.startsWith("_")) return expType.substring(1);
+      if (expType && houseSubType) {
+        expType += ":" + houseSubType;
+      }
+      if (expType && miscSubType) {
+        expType += ":" + miscSubType;
+      }
       return expType ? expType : "⁉️";
     },
     
     dateTodayChar: "Ⓣ",
     dateYesterdayChar: "Ⓨ",
+    
+    convertToUserFriendlyNumber: function(number) {
+      var numberStr = "" + number;
+      if (numberStr.startsWith("-")) {
+        numberStr = "⨺𑁒" + numberStr.substring(1) + "";
+      }
+      return numberStr;
+    },
     
     timeToUnicodeDisplayText: function(dateTime) {
       if (!dateTime || !(dateTime instanceof Date) || isNaN(dateTime.getFullYear())) {

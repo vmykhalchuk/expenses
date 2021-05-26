@@ -10,7 +10,7 @@ function doProcessViberMessage(jsonObjStr) {
   console.log("messageToken: " + messageToken);
   
   if (util.gas.checkIfTokenRepeats(messageToken, "Viber-message-")) {
-    console.warn("Duplicate viber message received: " + token);
+    console.warn("Duplicate viber message received: " + messageToken);
     return;
   }
   
@@ -313,14 +313,14 @@ var _viber = {
   _processLastCommand: function(cmdObj, req) {
     var rowsN = 5;
     var filterByExpType = null;
-    if (req.words.length > 1) {
-      if (isNaN(parseInt(req.words[1]))) {
-        filterByExpType = req.words[1];
+    if (req.wordsLC.length > 1) {
+      if (isNaN(parseInt(req.wordsLC[1]))) {
+        filterByExpType = req.wordsLC[1];
       } else {
-        rowsN = parseInt(req.words[1]);
+        rowsN = parseInt(req.wordsLC[1]);
       }
-      if (req.words.length > 2) {
-        filterByExpType = req.words[2];
+      if (req.wordsLC.length > 2) {
+        filterByExpType = req.wordsLC[2];
       }
     }
     
@@ -331,15 +331,29 @@ var _viber = {
     var startTime = new Date().getTime();
     var charCreditCard = "💳";
     var charMoney = "💴";
-    if (filterByExpType) {
-      filterByExpType = util.viber.viberCorrectExpType(filterByExpType);
+    var showAll = false;
+    var expTypeObj = null;
+    var expType = null;
+    var houseSubType = null;
+    var miscSubType = null;
+    
+    if (filterByExpType === "all") {
+      showAll = true;
+    } else {
+      expTypeObj = filterByExpType === "" ? {} : util.viber.parseRawExpenseType(filterByExpType);
+      expType = expTypeObj.expType;
+      houseSubType = expType === "house" ? expTypeObj.subType : null;
+      miscSubType = expType === "misc" ? expTypeObj.subType : null;
     }
+    
     var filterFunction = function(row) {
-      if (filterByExpType === "all") {
+      if (showAll) {
         return true;
       }
-      if (filterByExpType) {
-        return row.expType == filterByExpType;
+      if (expType) {
+        var houseCheck = houseSubType ? row.houseSubType == houseSubType : true;
+        var miscCheck = miscSubType ? row.miscSubType == miscSubType : true;
+        return row.expType == expType && houseCheck && miscCheck;
       } else {
         return row.expType != _c.expTypes.none && row.expType != _c.expTypes.other;
       }
@@ -356,7 +370,7 @@ var _viber = {
         if (text != "") text += "\n";
         var txTypeStr = charCreditCard;
         if (rows[i].txType == _c.txTypes.cashWallet) txTypeStr = charMoney;
-        var expTypeStr = util.viber.augmentExpType(rows[i].expType);
+        var expTypeStr = util.viber.augmentExpType(rows[i].expType, rows[i].houseSubType, rows[i].miscSubType);
         var dateTimeStr = util.viber.timeToUnicodeDisplayText(rows[i].txDate);
         var amountStr = rows[i].amount ? rows[i].amount + "₴" : "-";
         text += "◦" + txTypeStr + amountStr + " *" + expTypeStr + "* " + dateTimeStr + " " + rows[i].fullDescription;
@@ -398,19 +412,18 @@ var _viber = {
     if (weeklyToProcessStr && weeklyToProcessStr.indexOf(":") > 0) {
       weeklyToProcessStr = weeklyToProcessStr.substring(weeklyToProcessStr.indexOf(":") + 1).trim();
     }
-    var weeklyStr = dataStatus.weekly;
-    if (weeklyStr.startsWith("-")) {
-      weeklyStr = "~" + weeklyStr + "~";
-    }
-    var weekly2Str = dataStatus.weekly2;
-    if (weekly2Str.startsWith("-")) {
-      weekly2Str = "~" + weekly2Str + "~";
-    }
+    var weeklyStr = util.viber.convertToUserFriendlyNumber(dataStatus.weekly);
+    var weekly2Str = util.viber.convertToUserFriendlyNumber(dataStatus.weekly2);
+    var kycjaBalStr = util.viber.convertToUserFriendlyNumber(dataStatus.kycja);
+    var walletBalStr = util.viber.convertToUserFriendlyNumber(dataStatus.wallet);
+    var monoBlackBalStr = util.viber.convertToUserFriendlyNumber(dataStatus.monoBlackBalance);
+    var kredoBlackBalStr = util.viber.convertToUserFriendlyNumber(dataStatus.kredoBlackBalance);
     _viber.sendReplyToViberBotUser(req.senderId, "*◦ⓌWeekly:* " + weeklyStr + " {" + weeklyToProcessStr + "} | _(" + weekly2Str + ")_\n" + 
-                                   "*```◦Kycja:```* " + dataStatus.kycja + "\n" +
-                                   //"◦💳Kycja mono: " + dataStatus.monoBlackBalance + "\n" +
-                                   "*◦💴Wallet:* " + dataStatus.wallet + "\n" + 
-                                   "*◦💳Kredo black:* (" + dataStatus.kredoBlackBalance + ")", "💴Status");
+                                   "*```◦Kycja:```* " + kycjaBalStr + "\n" +
+                                   "*◦💴Wallet:* " + walletBalStr + "\n" + 
+                                   "*◦💳Oleh's mono:* " + monoBlackBalStr + "\n" +
+                                   "*◦💳Kredo black:* " + kredoBlackBalStr + "\n" +
+                                   "", "💴Status");
   },
   
   _split: {
