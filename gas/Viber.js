@@ -25,7 +25,7 @@ function doProcessViberMessage(jsonObjStr) {
   } catch (err) {
     recordInTxRow({status: "V-ERR"}, jsonObjStr);
     if (senderId) {
-      _viber.sendReplyToViberBotUser(senderId, "⛔️*ERROR:* " + err);
+      _viber.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err);
     }
   }
 }
@@ -115,7 +115,7 @@ var _viber = {
       try {
         this[cmdObj.handler].call(this, cmdObj, request);
       } catch(err) {
-        this.sendReplyToViberBotUser(senderId, "⛔️*ERROR:* " + err, cmdObj.name);
+        this.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err, cmdObj.name);
       }
       
     }
@@ -204,9 +204,15 @@ var _viber = {
     // c[ash] <amount> [-|<expense_type>] [-|+-Nhd] [<description>]
     // k[redo] ....
     var amount = wordsLC.length > 1 ? parseFloat(wordsLC[1]) : null;
+    if (!amount) throw "No amount provided, see usage for details!"
     amount = -amount;
     var expType = wordsLC.length > 2 ? wordsLC[2] : null;
-    expType = util.viber.viberCorrectExpType(expType);
+    expType === "-" ? null : expType;
+    var expTypeObj = expType ? util.viber.parseRawExpenseType(expType) : {};
+    expType = expTypeObj ? expTypeObj.expType : null;
+    var houseSubType = (expType === "house" && expTypeObj) ? expTypeObj.subType : null;
+    var miscSubType = (expType === "misc" && expTypeObj) ? expTypeObj.subType : null;
+
     var txDateCode = wordsLC.length > 3 ? wordsLC[3] : null;
     // FIXME fails when we miss txDateCode in command!!! then only starting from second word - we get description
     var description = wordsLC.length > 4 ? util.viber.getDescriptionFromCommandWords(words, 4) : null;
@@ -217,7 +223,9 @@ var _viber = {
       amount: amount,
       myComment: description,
       txType: txType,
-      expType: expType === "-" ? null : expType
+      expType: expType,
+      houseSubType: houseSubType,
+      miscSubType: miscSubType
     }, jsonObjStr, true);
     var amountF = rowNo > 2 ? (_c.sheets.inTx.name + "!" + _c.sheets.inTx.amountCol + rowNo) : amount; // FIXME this must be in Sheets code base!!!
     var namedRangeName;
@@ -476,7 +484,9 @@ var _viber = {
   
   _processManCommand: function(cmdObj, request) {
     var startTime = new Date().getTime();
-    var manualMsg = "*Expense Types:* " + _sheets.getListOfExpenseTypes().join(", ");
+    var expenseTypesStr = Object.keys(util.viber.getUserFriendlyMapOfExpenseTypes()).join(", ");
+    
+    var manualMsg = "*Expense Types:* " + expenseTypesStr;
     manualMsg += "\n*House Sub Types:* " + _sheets.getListOfHouseSubTypes().join(", ");
     manualMsg += "\n*Misc Sub Types:* " + _sheets.getListOfMiscSubTypes().join(", ");
     var tookMs = new Date().getTime() - startTime;

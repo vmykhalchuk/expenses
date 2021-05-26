@@ -91,7 +91,7 @@ var util = {
     convertToUserFriendlyNumber: function(number) {
       var numberStr = "" + number;
       if (numberStr.startsWith("-")) {
-        numberStr = "⨺𑁒" + numberStr.substring(1) + "";
+        numberStr = "−" + numberStr.substring(1) + "";//⨺
       }
       return numberStr;
     },
@@ -223,6 +223,7 @@ var util = {
       return res;
     },
     
+    // return {"none": "_none", "house": "house", ...}
     getUserFriendlyMapOfExpenseTypes: function() {
       var thiz = this;
       var lambda = () => {
@@ -236,14 +237,6 @@ var util = {
     
     _expenseTypeToUserFriendlyExpType: function(expType) {
       return expType.replace(/_/g, '');
-    },
-    
-    viberCorrectExpType: function(expType) {
-      if (_c.expTypes[expType]) {
-        return _c.expTypes[expType];
-      } else {
-        return expType;
-      }
     },
     
     getDescriptionFromCommandWords: function(words, startingFromWordNo) {

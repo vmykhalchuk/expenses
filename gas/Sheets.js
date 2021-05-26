@@ -8,7 +8,7 @@ function sheetsStartNextWeek() {
   sheet.getRange("TestRange").setValue(Math.round(v*10000) / 10000);
 }
 
-function recordInTxRow(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, registered, myComment*/, 
+function recordInTxRow(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/, 
                        jsonObjStr, skipFlush) {
   if (!rowObj) return -1;
   
@@ -37,6 +37,8 @@ function recordInTxRow(rowObj /*status, txDate, amount, monoMcc, description, co
   if (rowObj.expType) sheet.getRange(_c_inTx.expenseTypeCol + rowNo).setValue(rowObj.expType);
   if (rowObj.registered) sheet.getRange(_c_inTx.registeredFlagCol + rowNo).setValue(rowObj.registered);
   if (rowObj.myComment) sheet.getRange(_c_inTx.myCommentCol + rowNo).setValue(rowObj.myComment);
+  if (rowObj.houseSubType) sheet.getRange(_c_inTx.houseSubTypeCol + rowNo).setValue(rowObj.houseSubType);
+  if (rowObj.miscSubType) sheet.getRange(_c_inTx.miscSubTypeCol + rowNo).setValue(rowObj.miscSubType);
   
   if (jsonObjStr) {
     var obfuscatedStr = ("" + jsonObjStr).replace(/\r?\n|\r/g,"").replace(/\"/g,"'");
