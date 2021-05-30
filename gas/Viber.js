@@ -435,12 +435,13 @@ var _viber = {
   },
   
   _split: {
-    usage: "sp[lit] <rowNo|last> <2|3|4> [<description>]"
+    description: "Splits expense record into many, by default into 2 records",
+    usage: "sp[lit] <rowNo|last> [<2|3|4>] [<description>]"
   },
   
   _processSplitCommand: function(cmdObj, req) {
-    if (req.words.length < 3) {
-      throw "Expect at least two arguments: row number and on how many records to split!";
+    if (req.words.length < 2) {
+      throw "Expect at least one argument: row number!";
     } else {
       var rowNo = parseInt(req.words[1]);
       if (util.viber.matchesWordPartially(req.wordsLC[1], "last")) {
@@ -452,6 +453,10 @@ var _viber = {
       }
       var splitCount = parseInt(req.words[2]);
       var newMyComment = util.viber.getDescriptionFromCommandWords(req.words, 3);
+      if (isNaN(splitCount)) {
+        newMyComment = util.viber.getDescriptionFromCommandWords(req.words, 2);
+        splitCount = 2;
+      }
       _sheets.splitRecordIntoMany(rowNo, splitCount, newMyComment);
     }
   },
