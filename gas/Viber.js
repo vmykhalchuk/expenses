@@ -171,7 +171,7 @@ var _viber = {
   },
   
   _processCashCommand: function(cmdObj, request) {
-    this.processCashOrKredoCommand(_c.txTypes.cashWallet, request.words, request.wordsLC, request.jsonObjStr);
+    this.processCashOrKredoCommand(_c.txTypes.cashWallet, false, request.words, request.wordsLC, request.jsonObjStr);
   },
   
   _kredo: {
@@ -181,7 +181,7 @@ var _viber = {
   },
   
   _processKredoCommand: function(cmdObj, request) {
-    this.processCashOrKredoCommand(_c.txTypes.kredoBlack, request.words, request.wordsLC, request.jsonObjStr);
+    this.processCashOrKredoCommand(_c.txTypes.kredoBlack, false, request.words, request.wordsLC, request.jsonObjStr);
   },
   
   _mono: {
@@ -191,11 +191,34 @@ var _viber = {
   },
   
   _processMonoCommand: function(cmdObj, request) {
-    this.processCashOrKredoCommand(_c.txTypes.monoWhite, request.words, request.wordsLC, request.jsonObjStr);
+    this.processCashOrKredoCommand(_c.txTypes.monoWhite, false, request.words, request.wordsLC, request.jsonObjStr);
   },
   
-  processCashOrKredoCommand: function(txType, words, wordsLC, jsonObjStr) {
-    if (txType != _c.txTypes.cashWallet && 
+  _aid: {
+    name: "✚Aid",
+    helpCmdName: "✚aid",
+    description: "Register Aid expense from Kycja/mother/etc...",
+    usage: "a[id] <amount> [-|<expense_type>] [-|+-Nhd] [<description>]"
+  },
+  
+  _processAidCommand: function(cmdObj, request) {
+    this.processCashOrKredoCommand(null, true, request.words, request.wordsLC, request.jsonObjStr);
+  },
+  
+  /**
+  txType:
+  - _c.txTypes.cashWallet
+  - _c.txTypes.kredoBlack
+  - _c.txTypes.monoWhite
+  
+  isAidTx:
+  - if true - means this is special TX (virtual Tx) where Kycja or anyone else has helped with money for something, so it constitues of two Tx
+  -- hidden one (_other type) with income
+  -- visible one with expense
+  */
+  processCashOrKredoCommand: function(txType, isAidTx, words, wordsLC, jsonObjStr) {
+    if (!(!txType && isAidTx) &&
+        txType != _c.txTypes.cashWallet && 
         txType != _c.txTypes.kredoBlack &&
         txType != _c.txTypes.monoWhite) {
       throw "Wrong txType: " + txType;
@@ -203,6 +226,8 @@ var _viber = {
     
     // c[ash] <amount> [-|<expense_type>] [-|+-Nhd] [<description>]
     // k[redo] ....
+    // m[ono] ....
+    // a[id] ....
     var amount = wordsLC.length > 1 ? parseFloat(wordsLC[1]) : null;
     if (!amount) throw "No amount provided, see usage for details!"
     amount = -amount;
@@ -217,6 +242,20 @@ var _viber = {
     // FIXME fails when we miss txDateCode in command!!! then only starting from second word - we get description
     var description = wordsLC.length > 4 ? util.viber.getDescriptionFromCommandWords(words, 4) : null;
     var txDate = util.viber.calculateDateByCode(txDateCode);
+    
+    if (isAidTx) {
+      recordInTxRow({
+        status: "V-OK",
+        txDate: txDate,
+        amount: -amount,
+        myComment: description,
+        txType: txType,
+        expType: _c.expTypes.other,
+        houseSubType: houseSubType,
+        miscSubType: miscSubType
+      }, jsonObjStr, true);
+    }
+    
     var rowNo = recordInTxRow({
       status: "V-OK",
       txDate: txDate,
@@ -227,16 +266,19 @@ var _viber = {
       houseSubType: houseSubType,
       miscSubType: miscSubType
     }, jsonObjStr, true);
-    var amountF = rowNo > 2 ? (_c.sheets.inTx.name + "!" + _c.sheets.inTx.amountCol + rowNo) : amount; // FIXME this must be in Sheets code base!!!
-    var namedRangeName;
-    if (txType == _c.txTypes.cashWallet) {
-      namedRangeName = _c.sheets.nr.balance.wallet;
-    } else if (txType == _c.txTypes.kredoBlack) {
-      namedRangeName = _c.sheets.nr.balance.kredoBlack;
-    } else if (txType == _c.txTypes.monoWhite) {
-      namedRangeName = _c.sheets.nr.balance.monoWhite;
+    
+    if (txType) {
+      var amountF = rowNo > 2 ? (_c.sheets.inTx.name + "!" + _c.sheets.inTx.amountCol + rowNo) : amount; // FIXME this must be in Sheets code base!!!
+      var namedRangeName;
+      if (txType == _c.txTypes.cashWallet) {
+        namedRangeName = _c.sheets.nr.balance.wallet;
+      } else if (txType == _c.txTypes.kredoBlack) {
+        namedRangeName = _c.sheets.nr.balance.kredoBlack;
+      } else if (txType == _c.txTypes.monoWhite) {
+        namedRangeName = _c.sheets.nr.balance.monoWhite;
+      }
+      modifyBalanceV2(amountF, namedRangeName);
     }
-    modifyBalanceV2(amountF, namedRangeName);
   },
   
   _duplicated: {
@@ -293,8 +335,8 @@ var _viber = {
   
   _amount: {
     description: "Let's you modify amount of record",
-    usage: "a[mount] <rowNo> <newAmmount>",
-    underConstruction: true
+    usage: "am[ount] <rowNo> <newAmmount>",
+    underConstruction: false
   },
   
   _processAmountCommand: function(cmdObj, req) {
@@ -500,11 +542,11 @@ var _viber = {
     this.sendReplyToViberBotUser(request.senderId, manualMsg, cmdObj.name);
   },
   
-  _admin: {
-    helpCmdName: "🛠️admin",
+  _setup: {
+    helpCmdName: "🛠️setup",
     underConstruction: true
   },
-  _processAdminCommand: function(cmdObj, req) {
+  _processSetupCommand: function(cmdObj, req) {
     throw "🚧 Under construction!!!";
   },
   

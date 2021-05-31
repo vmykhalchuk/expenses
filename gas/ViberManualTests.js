@@ -13,7 +13,7 @@ var __manualTestsSuitViber = {
   processCashOrKredoCommand: function() {
     var words = ["c", "100", "week", "n", "test"];
     var wordsLC = words;
-    _viber.processCashOrKredoCommand(_c.txTypes.cashWallet, words, wordsLC, "");
+    _viber.processCashOrKredoCommand(_c.txTypes.cashWallet, false, words, wordsLC, "");
   },
   
   processLastCommand: function() {
