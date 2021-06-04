@@ -13,7 +13,7 @@ https://esprima.org/
 http://xahlee.info/comp/unicode_flags.html
 https://emojipedia.org/hammer-and-wrench/
 https://unicode-table.com/en/sets/symbols-for-steam/
-- 🛠️,🚧,💡,💳,💴,💰,🛸,⚠️,⛔️,🤖,☣️️,✔️
+- 🛠️,🚧,💡,💳,💴,💰,🛸,⚠️,⛔️,🤖,☣️️,✔️,⚙️,
 - 🙊,🙈,
 
 // --- Sycnhronization Locks ---

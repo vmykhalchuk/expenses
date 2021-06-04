@@ -8,12 +8,12 @@ var _codeConst = {
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("⚙️Z")
-  .addItem("Register MonoBank Hook", "onMenuRegisterMonoBankHook")
-  .addItem("Register Viber Hook", "onMenuRegisterViberHook")
-  .addItem("Mono reg tx", "onMenuMonoRegisterManually")
-  .addItem("Run Unit Tests 🛠️", "runUnitTestsInSpreadsheetApp")
-  .addItem("Help", "onMenuHelp")
-  .addItem("Test", "onMenuTest")
+  .addItem("⚙️Register Viber Hook", "onMenuRegisterViberHook")
+  .addItem("⚙️Register MonoBank Hook", "onMenuRegisterMonoBankHook")
+  .addItem("🛠️Run Unit Tests", "runUnitTestsInSpreadsheetApp")
+  .addItem("💡Help", "onMenuHelp")
+  .addItem("🚧Test", "onMenuTest")
+  .addItem("🚧Mono reg tx", "onMenuMonoRegisterManually")
   .addToUi();
   // TODO validate if Viber/Mono Hook has failed, if yes - show popup stating this error!
   //SpreadsheetApp.getActiveSpreadsheet().toast('Viber Hook failed!', 'Status', -1);
@@ -193,7 +193,7 @@ function onMenuHelp() {
                     '<a href="https://api.monobank.ua/" target="_blank">MonoBank API</a>')
   //.setWidth(800) //optional
   //.setHeight(500); //optional
-  SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Z Help');
+  SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Z Help 💡');
 }
 
 function onMenuTest() {
