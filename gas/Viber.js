@@ -23,7 +23,7 @@ function doProcessViberMessage(jsonObjStr) {
       throw "Viber wrong POST JSON call";
     }
   } catch (err) {
-    recordInTxRow({status: "V-ERR"}, jsonObjStr);
+    _sheets.recordInTxRow({status: "V-ERR"}, jsonObjStr);
     if (senderId) {
       _viber.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err);
     }
@@ -217,6 +217,9 @@ var _viber = {
   -- visible one with expense
   */
   processCashOrKredoCommand: function(txType, isAidTx, words, wordsLC, jsonObjStr) {
+    if (isAidTx && txType) {
+      throw "No TxType allowed if isAidTx!";
+    }
     if (!(!txType && isAidTx) &&
         txType != _c.txTypes.cashWallet && 
         txType != _c.txTypes.kredoBlack &&
@@ -237,26 +240,15 @@ var _viber = {
     expType = expTypeObj ? expTypeObj.expType : null;
     var houseSubType = (expType === "house" && expTypeObj) ? expTypeObj.subType : null;
     var miscSubType = (expType === "misc" && expTypeObj) ? expTypeObj.subType : null;
-
+    
     var txDateCode = wordsLC.length > 3 ? wordsLC[3] : null;
     // FIXME fails when we miss txDateCode in command!!! then only starting from second word - we get description
     var description = wordsLC.length > 4 ? util.viber.getDescriptionFromCommandWords(words, 4) : null;
     var txDate = util.viber.calculateDateByCode(txDateCode);
     
-    if (isAidTx) {
-      recordInTxRow({
-        status: "V-OK",
-        txDate: txDate,
-        amount: -amount,
-        myComment: description,
-        txType: txType,
-        expType: _c.expTypes.other,
-        houseSubType: houseSubType,
-        miscSubType: miscSubType
-      }, jsonObjStr, true);
-    }
+    var rowNo;
     
-    var rowNo = recordInTxRow({
+    var dataObj = {
       status: "V-OK",
       txDate: txDate,
       amount: amount,
@@ -265,10 +257,15 @@ var _viber = {
       expType: expType,
       houseSubType: houseSubType,
       miscSubType: miscSubType
-    }, jsonObjStr, true);
+    };
+    if (isAidTx) {
+      _sheets.recordAidTxRow(dataObj, jsonObjStr, true);
+    } else {
+      rowNo = _sheets.recordInTxRow(dataObj, jsonObjStr, true);
+    }
     
     if (txType) {
-      var amountF = rowNo > 2 ? (_c.sheets.inTx.name + "!" + _c.sheets.inTx.amountCol + rowNo) : amount; // FIXME this must be in Sheets code base!!!
+      var amountF = rowNo > 2 ? (_c.sheets.inTx.name + "!" + _c.sheets.inTx.amountCol + rowNo) : ("ERROR: " + amount); // FIXME this must be in Sheets code base!!!
       var namedRangeName;
       if (txType == _c.txTypes.cashWallet) {
         namedRangeName = _c.sheets.nr.balance.wallet;
@@ -555,7 +552,7 @@ var _viber = {
     helpCmdName: "🧪test"
   },
   _processTestCommand: function(cmdObj, req) {
-    recordInTxRow({
+    _sheets.recordInTxRow({
       status: "V-TST"
     }, req.jsonObjStr);
   },

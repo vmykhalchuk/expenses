@@ -8,66 +8,6 @@ function sheetsStartNextWeek() {
   sheet.getRange("TestRange").setValue(Math.round(v*10000) / 10000);
 }
 
-function recordInTxRow(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/, 
-                       jsonObjStr, skipFlush) {
-  if (!rowObj) return -1;
-  
-  var ss = SpreadsheetApp.getActive();
-  var sheet = ss.getSheetByName(_c.sheets.inTx.name);
-  
-  var rowNo = duplicateSecondRowToBottom();
-  
-  var _c_inTx = _c.sheets.inTx;
-  
-  if (rowObj.status) sheet.getRange(_c_inTx.statusCol + rowNo).setValue(rowObj.status);
-  sheet.getRange(_c_inTx.dateCol + rowNo).setValue(new Date());
-  
-  if (rowObj.txDate) sheet.getRange(_c_inTx.txDateCol + rowNo).setValue(rowObj.txDate);
-  if (rowObj.amount || rowObj.amountFormula) {
-    if (rowObj.amountFormula) {
-      sheet.getRange(_c_inTx.amountCol + "" + rowNo).setFormula(rowObj.amountFormula);
-    } else {
-      sheet.getRange(_c_inTx.amountCol + "" + rowNo).setValue(rowObj.amount);
-    }
-  }
-  if (rowObj.monoMcc) sheet.getRange(_c_inTx.monoMccCol + rowNo).setValue(rowObj.monoMcc);
-  if (rowObj.description) sheet.getRange(_c_inTx.monoDescriptionCol + rowNo).setValue(rowObj.description);
-  if (rowObj.comment) sheet.getRange(_c_inTx.monoCommentCol + rowNo).setValue(rowObj.comment);
-  if (rowObj.txType) sheet.getRange(_c_inTx.txTypeCol + rowNo).setValue(rowObj.txType);
-  if (rowObj.expType) sheet.getRange(_c_inTx.expenseTypeCol + rowNo).setValue(rowObj.expType);
-  if (rowObj.registered) sheet.getRange(_c_inTx.registeredFlagCol + rowNo).setValue(rowObj.registered);
-  if (rowObj.myComment) sheet.getRange(_c_inTx.myCommentCol + rowNo).setValue(rowObj.myComment);
-  if (rowObj.houseSubType) sheet.getRange(_c_inTx.houseSubTypeCol + rowNo).setValue(rowObj.houseSubType);
-  if (rowObj.miscSubType) sheet.getRange(_c_inTx.miscSubTypeCol + rowNo).setValue(rowObj.miscSubType);
-  
-  if (jsonObjStr) {
-    var obfuscatedStr = ("" + jsonObjStr).replace(/\r?\n|\r/g,"").replace(/\"/g,"'");
-    var jsonObjStrFormula = '=IF("' + obfuscatedStr + '"="","","")';
-    sheet.getRange(_c_inTx.incomingPostDataCol + rowNo).setFormula(jsonObjStrFormula);
-  }
-  if (!skipFlush) SpreadsheetApp.flush();
-  return rowNo;
-}
-
-function duplicateSecondRowToBottom() {
-  var ss = SpreadsheetApp.getActive();
-  var sheet = ss.getSheetByName(_c.sheets.inTx.name);
-  
-  var lastColumnIndx = sheet.getLastColumn();
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 2) {
-    return -1;
-  }
-  
-  var sourceRange = sheet.getRange(2, 1, 1, lastColumnIndx);
-  sheet.insertRowAfter(lastRow);
-  
-  sourceRange.copyTo(sheet.getRange(lastRow + 1, 1, 1, lastColumnIndx), {contentsOnly:false});
-  
-  return lastRow + 1;
-}
-
-
 function recordBalance(balance, namedRangeName, skipFlush) {
   var ss = SpreadsheetApp.getActive();
   var range = ss.getRangeByName(namedRangeName);
@@ -106,6 +46,76 @@ function getDataStatus() {
 }
 
 var _sheets = {
+  
+  recordAidTxRow: function(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/,
+                           jsonObjStr, skipFlush) {
+    return this._recordRow(rowObj, jsonObjStr, _c.sheets.aidTx.name, skipFlush);
+  },
+  
+  recordInTxRow: function(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/,
+                          jsonObjStr, skipFlush) {
+    return this._recordRow(rowObj, jsonObjStr, _c.sheets.inTx.name, skipFlush);
+  },
+  
+  _recordRow: function(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/,
+                       jsonObjStr, sheetName, skipFlush) {
+    if (!rowObj) return -1;
+    
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(sheetName);
+    
+    var rowNo = this.duplicateSecondRowToBottom(sheetName);
+    
+    var _c_inTx = _c.sheets.inTx;
+    
+    if (rowObj.status) sheet.getRange(_c_inTx.statusCol + rowNo).setValue(rowObj.status);
+    sheet.getRange(_c_inTx.dateCol + rowNo).setValue(new Date());
+    
+    if (rowObj.txDate) sheet.getRange(_c_inTx.txDateCol + rowNo).setValue(rowObj.txDate);
+    if (rowObj.amount || rowObj.amountFormula) {
+      if (rowObj.amountFormula) {
+        sheet.getRange(_c_inTx.amountCol + "" + rowNo).setFormula(rowObj.amountFormula);
+      } else {
+        sheet.getRange(_c_inTx.amountCol + "" + rowNo).setValue(rowObj.amount);
+      }
+    }
+    if (rowObj.monoMcc) sheet.getRange(_c_inTx.monoMccCol + rowNo).setValue(rowObj.monoMcc);
+    if (rowObj.description) sheet.getRange(_c_inTx.monoDescriptionCol + rowNo).setValue(rowObj.description);
+    if (rowObj.comment) sheet.getRange(_c_inTx.monoCommentCol + rowNo).setValue(rowObj.comment);
+    if (rowObj.txType) sheet.getRange(_c_inTx.txTypeCol + rowNo).setValue(rowObj.txType);
+    if (rowObj.expType) sheet.getRange(_c_inTx.expenseTypeCol + rowNo).setValue(rowObj.expType);
+    if (rowObj.registered) sheet.getRange(_c_inTx.registeredFlagCol + rowNo).setValue(rowObj.registered);
+    if (rowObj.myComment) sheet.getRange(_c_inTx.myCommentCol + rowNo).setValue(rowObj.myComment);
+    if (rowObj.houseSubType) sheet.getRange(_c_inTx.houseSubTypeCol + rowNo).setValue(rowObj.houseSubType);
+    if (rowObj.miscSubType) sheet.getRange(_c_inTx.miscSubTypeCol + rowNo).setValue(rowObj.miscSubType);
+    
+    if (jsonObjStr) {
+      var obfuscatedStr = ("" + jsonObjStr).replace(/\r?\n|\r/g,"").replace(/\"/g,"'");
+      var jsonObjStrFormula = '=IF("' + obfuscatedStr + '"="","","")';
+      sheet.getRange(_c_inTx.incomingPostDataCol + rowNo).setFormula(jsonObjStrFormula);
+    }
+    if (!skipFlush) SpreadsheetApp.flush();
+    return rowNo;
+  },
+  
+  duplicateSecondRowToBottom: function(sheetName) {
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(sheetName);
+    
+    var lastColumnIndx = sheet.getLastColumn();
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      return -1;
+    }
+    
+    var sourceRange = sheet.getRange(2, 1, 1, lastColumnIndx);
+    sheet.insertRowAfter(lastRow);
+    
+    sourceRange.copyTo(sheet.getRange(lastRow + 1, 1, 1, lastColumnIndx), {contentsOnly:false});
+    
+    return lastRow + 1;
+  },
+  
   getInTxLastNRows: function(rowsN, filterFunction) {
     var timeLimitThreshold = 90*1000;
     var chunkSize = 20;

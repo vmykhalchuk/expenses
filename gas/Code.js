@@ -66,7 +66,7 @@ function doPost(e) {
     return doPostIfttt(e);
   } else {
     var status = "G-ERR"; // General Error
-    recordInTxRow({status: status}, e.postData.contents);
+    _sheets.recordInTxRow({status: status}, e.postData.contents);
     return HtmlService.createHtmlOutput("shit happens, set source attribute to make me happy");
   }
 }
@@ -90,11 +90,11 @@ function doPostIfttt(e) {
   var jsonObj = JSON.parse(jsonObjStr);
   if (jsonObj) {
     var status = "I-TST"; // Ifttt Testing
-    recordInTxRow({status: status}, e.postData.contents);
+    _sheets.recordInTxRow({status: status}, e.postData.contents);
     _ifttt.handleSmsReceived(jsonObj.message);
   } else {
     var status = "I-ERR"; // Ifttt Error
-    recordInTxRow({status: status}, e.postData.contents);
+    _sheets.recordInTxRow({status: status}, e.postData.contents);
   }
   return HtmlService.createHtmlOutput("this is message from ifttt (sms received)");
 }

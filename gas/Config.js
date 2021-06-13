@@ -67,6 +67,9 @@ var _c = {
       miscSubTypeCol: "P",
       houseSubTypeCol: "Q"
     },
+    aidTx: {
+      name: "AidTx"
+    },
     archTx: {
       name: "ArchTx"
     },

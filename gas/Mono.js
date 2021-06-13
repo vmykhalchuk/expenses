@@ -70,7 +70,7 @@ function processMonoMessageAsyncHandler(monoTxRowNo, jsonObj, jsonObjStr) {
   }
   
   var rowNo = -1;
-  if (!skipRecord) { rowNo = recordInTxRow(rowObj, jsonObjStr); }
+  if (!skipRecord) { rowNo = _sheets.recordInTxRow(rowObj, jsonObjStr); }
   
   _sheets.setMonoTxStatus(monoTxRowNo,"STEP1");
   
