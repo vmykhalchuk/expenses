@@ -138,7 +138,7 @@ var util = {
       if (util.viber.matchesWordPartially(code, "now"))
         return new Date();
       
-      for (var i = 1; i < 12; i++) {
+      for (var i = 1; i < 99; i++) {
         if (code === "-" + i + "d") {
           return new Date(new Date().getTime() - i*24*60*60*1000);
         } else if (code === "-" + i + "h") {
