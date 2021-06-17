@@ -1,6 +1,7 @@
 var _util_cache = {};
 
 var util = {
+  
   comm: {
     capitalize: function(s) {
       if (typeof s !== "string") return "";
@@ -15,15 +16,18 @@ var util = {
     },
     
     evalCache: function(key, evalFunc) {
-      if (!_util_cache[key]) {
+      return this.evalLocalCache(key, function() {
         var cacheRes = CacheService.getScriptCache().get(key);
         if (!cacheRes) {
           cacheRes = evalFunc.call();
           CacheService.getScriptCache().put(key, cacheRes, 21600 /*6h*/);
         }
-        _util_cache[key] = cacheRes;
-      }
-      return _util_cache[key];
+        return cacheRes;
+      });
+    },
+    
+    removeCacheEntry: function(key) {
+      CacheService.getScriptCache().remove(key);
     }
   },
   
@@ -267,6 +271,62 @@ var util = {
       resStr = this.appendStrIf(resStr, monoComment, "/");
       resStr = this.appendStrIf(resStr, myComment, "/");
       return resStr;
+    },
+    
+    /**
+    returns stream with next(), hasNext() methods, to get next() element which is {values: [], displayValues: [], rowNo: int}
+    */
+    getStreamOfRowsFromSheetInReverse: function(sheet, chunkSize) {
+      
+      var _calculateNextBatch = function() {
+        this.rowFrom = this.rowTo - this.chunkSize + 1;
+        this.rowFrom = this.rowFrom >= this.minimumRowNo ? this.rowFrom : this.minimumRowNo;
+        var sourceRange = this.sheet.getRange(this.rowFrom, 1, this.rowTo - this.rowFrom + 1, this.lastColumnIndx);
+        this.displayValues = sourceRange.getDisplayValues().reverse();
+        this.values = sourceRange.getValues().reverse();
+        this.i = 0;
+      };
+      
+      var nextFunc = function() {
+        if (!this.hasNext()) {
+          return null;
+        }
+        
+        if (this.i < this.displayValues.length) {
+          var resObj = {
+            values: this.values[this.i],
+            displayValues: this.displayValues[this.i],
+            rowNo: this.rowTo - this.i
+          }
+          this.i++;
+          return resObj;
+          
+        } else {
+          
+          this.rowTo = this.rowFrom - 1;
+          this._calculateNextBatch();
+          return this.next();
+        }
+      };
+      
+      var hasNextFunc = function() {
+        return (this.rowTo - this.i) >= this.minimumRowNo;
+      };
+      
+      var stream = {
+        hasNext: hasNextFunc,
+        next: nextFunc,
+        _calculateNextBatch: _calculateNextBatch,
+        
+        sheet: sheet,
+        chunkSize: chunkSize,
+        
+        minimumRowNo: 3,
+        rowTo: sheet.getLastRow(),
+        lastColumnIndx: sheet.getLastColumn()
+      };
+      stream._calculateNextBatch();
+      return stream;
     },
     
     columnToLetter: function(column) {

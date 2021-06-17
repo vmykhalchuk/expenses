@@ -64,6 +64,20 @@ var __testsSuitUtil = {
   }
 };
 
+function debugTest() {
+  var ss = SpreadsheetApp.getActive();
+  var stream1 = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.inTx.name), 2);
+  while(stream1.hasNext()) {
+    try {
+      var record = stream1.next();
+      if (!record) {
+        break;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+};
 
 function romanTest() {
   var ss = SpreadsheetApp.getActive();

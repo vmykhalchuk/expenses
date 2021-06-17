@@ -117,7 +117,7 @@ var _sheets = {
   },
   
   getInTxLastNRows: function(rowsN, filterFunction) {
-    var timeLimitThreshold = 90*1000;
+    var timeLimitThreshold = 15*1000;
     var chunkSize = 20;
     
     var startTime = new Date().getTime();
@@ -125,7 +125,6 @@ var _sheets = {
     if (rowsN > 500) rowsN = 500;
     
     var ss = SpreadsheetApp.getActive();
-    var sheet = ss.getSheetByName(_c.sheets.inTx.name);
     var _c_inTx = _c.sheets.inTx;
     var dateColNo = util.sheets.letterToColumn(_c_inTx.dateCol) - 1;
     var txDateColNo = util.sheets.letterToColumn(_c_inTx.txDateCol) - 1;
@@ -141,53 +140,43 @@ var _sheets = {
     
     var resultRows = new Array();
     var timedOut = false;
-    var goingThroughArchiving = false;
+    var funcRecordToRowObj = function(values, displayValues, rowNo) {
+      var fullDescr = util.sheets.calculateFullDescription(displayValues[monoDescriptionColNo],
+                                                                 displayValues[monoCommentColNo],
+                                                                 displayValues[myCommentColNo]);
+      return {
+        inTxRowNo: rowNo,
+        txDate: values[txDateColNo] == "" ? values[dateColNo] : values[txDateColNo],
+        amount: displayValues[amountColNo],
+        fullDescription: fullDescr,
+        txType: displayValues[txTypeColNo],
+        expType: displayValues[expenseTypeColNo],
+        houseSubType: displayValues[houseSubTypeColNo],
+        miscSubType: displayValues[miscSubTypeColNo]
+      };
+    };
     
-    while (true) {
-      var rowTo = sheet.getLastRow();
-      var lastColumnIndx = sheet.getLastColumn();
+    var stream = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.inTx.name), chunkSize);
+    var isArchivingStream = false;
+    while(stream.hasNext() && !timedOut) {
       
-      while (rowTo >= 3 && !timedOut) {
-        var rowFrom = rowTo - chunkSize + 1;
-        rowFrom = rowFrom >= 3 ? rowFrom : 3;
-        
-        var sourceRange = sheet.getRange(rowFrom, 1, rowTo - rowFrom + 1, lastColumnIndx);
-        var displayValues = sourceRange.getDisplayValues().reverse();
-        var values = sourceRange.getValues().reverse();
-        for (var i = 0; i < displayValues.length; i++) {
-          var fullDescription = util.sheets.calculateFullDescription(displayValues[i][monoDescriptionColNo],
-                                                                     displayValues[i][monoCommentColNo], displayValues[i][myCommentColNo]);
-          var row = {
-            inTxRowNo: goingThroughArchiving ? null : (rowTo - i),
-            txDate: values[i][txDateColNo] == "" ? values[i][dateColNo] : values[i][txDateColNo],
-            amount: displayValues[i][amountColNo],
-            fullDescription: fullDescription,
-            txType: displayValues[i][txTypeColNo],
-            expType: displayValues[i][expenseTypeColNo],
-            houseSubType: displayValues[i][houseSubTypeColNo],
-            miscSubType: displayValues[i][miscSubTypeColNo]
-          };
-          if (filterFunction && !filterFunction(row)) {
-            continue;
-          }
-          resultRows.push(row);
-          if (resultRows.length == rowsN) break;
-        }
-        
-        timedOut = (new Date().getTime() - startTime) > timeLimitThreshold;
-        rowTo = rowFrom - 1;
-        if (resultRows.length == rowsN) break;
+      var record = stream.next();
+      if (!record) {
+        throw "Unexpected record: " + record;
       }
-      
-      var finished = timedOut || resultRows.length == rowsN;
-      
-      if (finished || goingThroughArchiving) {
-        break;
-      } else {
-        sheet = ss.getSheetByName(_c.sheets.archTx.name);
-        goingThroughArchiving = true;
+      var row = funcRecordToRowObj(record.values, record.displayValues, isArchivingStream ? null : record.rowNo);
+      if (!filterFunction || filterFunction(row)) {
+        resultRows.push(row);
       }
+
+      if (resultRows.length == rowsN) break;
+
+      timedOut = (new Date().getTime() - startTime) > timeLimitThreshold;
       
+      if (!stream.hasNext() && !isArchivingStream) {
+        stream = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.archTx.name), chunkSize);
+        isArchivingStream = true;
+      }
     }
     
     return { rows: resultRows, timedOut: timedOut };

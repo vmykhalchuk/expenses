@@ -7,13 +7,17 @@ var _codeConst = {
 };
 
 function onOpen() {
+  var devMenu = SpreadsheetApp.getUi().createMenu("🛠️Dev")
+  .addItem("🛠️Run Unit Tests", "runUnitTestsInSpreadsheetApp")
+  .addItem("🚧Test", "onMenuDevTest")
+  .addItem("✂Clean cache entry", "onMenuDevCleanCacheEntry");
+
   SpreadsheetApp.getUi().createMenu("⚙️Z")
   .addItem("⚙️Register Viber Hook", "onMenuRegisterViberHook")
   .addItem("⚙️Register MonoBank Hook", "onMenuRegisterMonoBankHook")
-  .addItem("🛠️Run Unit Tests", "runUnitTestsInSpreadsheetApp")
   .addItem("💡Help", "onMenuHelp")
-  .addItem("🚧Test", "onMenuTest")
-  .addItem("🚧Mono reg tx", "onMenuMonoRegisterManually")
+  .addItem("🚧Mono reg tx", "onMenuMonoRegisterTxManually")
+  .addSubMenu(devMenu)
   .addToUi();
   // TODO validate if Viber/Mono Hook has failed, if yes - show popup stating this error!
   //SpreadsheetApp.getActiveSpreadsheet().toast('Viber Hook failed!', 'Status', -1);
@@ -97,14 +101,6 @@ function doPostIfttt(e) {
     _sheets.recordInTxRow({status: status}, e.postData.contents);
   }
   return HtmlService.createHtmlOutput("this is message from ifttt (sms received)");
-}
-
-function onMenuMonoRegisterManually() {
-  // manually register Mono Tx that missed by some reason
-  var ui = SpreadsheetApp.getUi();
-  var expenseAmount = ui.prompt("Enter amount");
-  var expenseType = ui.prompt("Enter expense type");
-  ui.alert("Amount: " + expenseAmount + "\nType: " + expenseType);
 }
 
 function onMenuRegisterMonoBankHook() {
@@ -196,7 +192,15 @@ function onMenuHelp() {
   SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Z Help 💡');
 }
 
-function onMenuTest() {
+function onMenuMonoRegisterTxManually() {
+  // manually register Mono Tx that missed by some reason
+  var ui = SpreadsheetApp.getUi();
+  var expenseAmount = ui.prompt("Enter amount").getResponseText();
+  var expenseType = ui.prompt("Enter expense type").getResponseText();
+  ui.alert("Amount: " + expenseAmount + "\nType: " + expenseType);
+}
+
+function onMenuDevTest() {
   //SpreadsheetApp.getActiveSpreadsheet().toast('Task started', 'Status', -1);
   var ui = SpreadsheetApp.getUi();
   ui.alert("" + Object.keys(util.viber.getUserFriendlyMapOfExpenseTypes()).join(", "));
@@ -204,4 +208,12 @@ function onMenuTest() {
   //ui.alert("Test!!!\n" + SpreadsheetApp.getActive().getRange("Data!A55").getValue());
 
   //ui.alert("isRange: " + (SpreadsheetApp.getActive().getRange("InTx!A1") == "Range"));
+}
+
+function onMenuDevCleanCacheEntry() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.prompt("Enter Cache Entry Key:\n   e.g. listOfExpenseTypes, listOfHouseSubTypes, listOfMiscSubTypes");
+  if (response.getSelectedButton() == ui.Button.OK) {
+    util.comm.removeCacheEntry(response.getResponseText());
+  }
 }

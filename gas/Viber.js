@@ -25,7 +25,7 @@ function doProcessViberMessage(jsonObjStr) {
   } catch (err) {
     _sheets.recordInTxRow({status: "V-ERR"}, jsonObjStr);
     if (senderId) {
-      _viber.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err);
+      _viber.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err + "\n" + err.stack);
     }
   }
 }
@@ -115,7 +115,7 @@ var _viber = {
       try {
         this[cmdObj.handler].call(this, cmdObj, request);
       } catch(err) {
-        this.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err, cmdObj.name);
+        this.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err + "\n" + err.stack, cmdObj.name);
       }
       
     }
@@ -407,12 +407,8 @@ var _viber = {
     };
     var lastInTxRows = _sheets.getInTxLastNRows(rowsN, filterFunction);
     var rows = lastInTxRows.rows.reverse();
-    if (!rows || rows.length == 0) {
-      _viber.sendReplyToViberBotUser(senderId, "🛸 вкрало дані...", cmdName);
-      return;
-    }
     var text = "";
-    if (rows.length > 0) {
+    if (rows && rows.length > 0) {
       for (var i = 0; i < rows.length; i++) {
         if (text != "") text += "\n";
         var txTypeStr = charCreditCard;
@@ -425,11 +421,13 @@ var _viber = {
           text += " _[#" + rows[i].inTxRowNo + "]_";
         }
       }
+    } else {
+      text = "🛸 вкрало дані...";
     }
     if (lastInTxRows.timedOut) {
       text = "*⚠️Timed Out!!!*\n" + text;
     }
-    var newTrackingData = rows[0] ? ("last " + rows[0].inTxRowNo + " " + rows.length) : "";
+    var newTrackingData = rows && rows[0] ? ("last " + rows[0].inTxRowNo + " " + rows.length) : "";
     var sendReplyTimeStart = new Date().getTime();
     _viber.sendReplyToViberBotUser(senderId, text, cmdName, newTrackingData);
     if (false/*debug: show how long it executes*/) {
