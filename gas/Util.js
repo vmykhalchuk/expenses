@@ -9,6 +9,9 @@ var util = {
     },
     
     evalLocalCache: function(key, evalFunc) {
+      if (_c.cachesLocal.indexOf(key) == -1 && _c.caches.indexOf(key) == -1) {
+        throw new Error("Wrong local cache key: " + key);
+      }
       if (!_util_cache[key]) {
         _util_cache[key] = evalFunc.call();
       }
@@ -16,6 +19,10 @@ var util = {
     },
     
     evalCache: function(key, evalFunc) {
+      if (_c.caches.indexOf(key) == -1) {
+        throw new Error("Wrong cache key: " + key);
+      }
+      
       return this.evalLocalCache(key, function() {
         var cacheRes = CacheService.getScriptCache().get(key);
         if (!cacheRes) {
@@ -27,6 +34,7 @@ var util = {
     },
     
     removeCacheEntry: function(key) {
+      _util_cache[key] = null;
       CacheService.getScriptCache().remove(key);
     },
     

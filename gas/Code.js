@@ -212,8 +212,15 @@ function onMenuDevTest() {
 
 function onMenuDevCleanCacheEntry() {
   var ui = SpreadsheetApp.getUi();
-  var response = ui.prompt("Enter Cache Entry Key:\n   e.g. listOfExpenseTypes, listOfHouseSubTypes, listOfMiscSubTypes");
+  var response = ui.prompt("Enter Cache Entry Key, or all:\n   e.g. " + _c.caches);
   if (response.getSelectedButton() == ui.Button.OK) {
-    util.comm.removeCacheEntry(response.getResponseText());
+    var key = response.getResponseText();
+    if (key === "all") {
+      for (var k in _c.caches) {
+        util.comm.removeCacheEntry(_c.caches[k]);
+      }
+    } else {
+      util.comm.removeCacheEntry(key);
+    }
   }
 }

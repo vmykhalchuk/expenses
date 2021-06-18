@@ -23,7 +23,7 @@ function doProcessViberMessage(jsonObjStr) {
       throw "Viber wrong POST JSON call";
     }
   } catch (err) {
-    _sheets.recordInTxRow({status: "V-ERR"}, jsonObjStr);
+    //_sheets.recordInTxRow({status: "V-ERR"}, jsonObjStr);
     if (senderId) {
       _viber.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err + "\n" + err.stack);
     }

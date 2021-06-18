@@ -107,5 +107,8 @@ var _c = {
         currentWeekStart: "C_CURR_WEEK_START"
       }
     }
-  }
+  },
+
+  caches: ["listOfExpenseTypes", "listOfHouseSubTypes", "listOfMiscSubTypes"],
+  cachesLocal: ["userFriendlyListOfExpenseTypes"]
 };
