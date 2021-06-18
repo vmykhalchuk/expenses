@@ -156,15 +156,20 @@ var _sheets = {
       };
     };
     
-    var stream = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.inTx.name), chunkSize);
+    var streamMain = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.inTx.name), chunkSize);
+    var streamAid = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.aidTx.name), chunkSize);
     var isArchivingStream = false;
+    var stream = util.comm.parallelizeTwoStreams(streamMain, streamAid,
+                                                 function(recMain, recAid) {
+                                                   return recMain.txDate < recAid.txDate;
+                                                 });
     while(stream.hasNext() && !timedOut) {
-      
       var record = stream.next();
-      if (!record) {
-        throw "Unexpected record: " + record;
-      }
-      var row = funcRecordToRowObj(record.values, record.displayValues, isArchivingStream ? null : record.rowNo);
+      var isAidRecord = record.sheet.getName() === _c.sheets.aidTx.name;
+      var isArchRecord = record.sheet.getName() === _c.sheets.archTx.name;
+      var row = funcRecordToRowObj(record.values, record.displayValues, isAidRecord || isArchRecord ? null : record.rowNo);
+      row.isAidRecord = isAidRecord;
+      row.isArchRecord = isArchRecord;
       if (!filterFunction || filterFunction(row)) {
         resultRows.push(row);
       }

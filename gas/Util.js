@@ -28,6 +28,63 @@ var util = {
     
     removeCacheEntry: function(key) {
       CacheService.getScriptCache().remove(key);
+    },
+    
+    parallelizeTwoStreams: function(stream1, stream2, pickSizeHandler) {
+      return {
+        stream1: stream1,
+        stream2: stream2,
+        handler: pickSizeHandler,
+        
+        hasNext: function() {
+          return this.stream1.hasNext() || this.stream2.hasNext();
+        },
+        
+        next: function() {
+          if (!this.stream1.hasNext()) {
+            return this.stream2.next();
+          } else if (this.stream2.hasNext()) {
+            return this.stream1.next();
+          } else {
+            if (this.handler(this.stream1.peek(), this.stream2.peek())) {
+              return this.stream1.next();
+            } else {
+              return this.stream2.next();
+            }
+          }
+        },
+        
+        peek: function() {
+          throw new Error("Under construction!");
+        }
+      };
+    },
+    
+    concatenateTwoStreams: function(stream1, stream2) {
+      return {
+        stream1: stream1,
+        stream2: stream2,
+        
+        hasNext: function() {
+          stream1.hasNext() || stream2.hasNext();
+        },
+        
+        next: function() {
+          if (stream1.hasNext()) {
+            return stream1.next();
+          } else {
+            return stream2.next();
+          }
+        },
+        
+        peek: function() {
+          if (stream1.hasNext()) {
+            return stream1.peek();
+          } else {
+            return stream2.peek();
+          }
+        }
+      };
     }
   },
   
@@ -100,7 +157,7 @@ var util = {
       return numberStr;
     },
     
-    timeToUnicodeDisplayText: function(dateTime) {
+    timeToHappyDisplayText: function(dateTime) {
       if (!dateTime || !(dateTime instanceof Date) || isNaN(dateTime.getFullYear())) {
         return "E:" + dateTime;
       }
@@ -274,7 +331,7 @@ var util = {
     },
     
     /**
-    returns stream with next(), hasNext() methods, to get next() element which is {values: [], displayValues: [], rowNo: int}
+    returns stream with next(), hasNext() methods, to get next() element which is {values: [], displayValues: [], rowNo: int, sheet: Sheet }
     */
     getStreamOfRowsFromSheetInReverse: function(sheet, chunkSize) {
       
@@ -288,6 +345,12 @@ var util = {
       };
       
       var nextFunc = function() {
+        var po = this.peekObj;
+        if (po) {
+          this.peekObj = null;
+          return po;
+        }
+
         if (!this.hasNext()) {
           return null;
         }
@@ -296,7 +359,8 @@ var util = {
           var resObj = {
             values: this.values[this.i],
             displayValues: this.displayValues[this.i],
-            rowNo: this.rowTo - this.i
+            rowNo: this.rowTo - this.i,
+            sheet: this.sheet
           }
           this.i++;
           return resObj;
@@ -309,19 +373,23 @@ var util = {
         }
       };
       
-      var hasNextFunc = function() {
-        return (this.rowTo - this.i) >= this.minimumRowNo;
-      };
-      
       var stream = {
-        hasNext: hasNextFunc,
-        next: nextFunc,
         _calculateNextBatch: _calculateNextBatch,
+        next: nextFunc,
+        hasNext: function() {
+          return this.peekObj || ((this.rowTo - this.i) >= this.minimumRowNo);
+        },
+        peek: function() {
+          if (!this.peekObj && this.hasNext()) {
+            this.peekObj = this.next();
+          }
+          return this.peekObj;
+        },
         
         sheet: sheet,
         chunkSize: chunkSize,
         
-        minimumRowNo: 3,
+        minimumRowNo: _c.sheets.inTx.firstRowNo,
         rowTo: sheet.getLastRow(),
         lastColumnIndx: sheet.getLastColumn()
       };

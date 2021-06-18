@@ -411,12 +411,14 @@ var _viber = {
     if (rows && rows.length > 0) {
       for (var i = 0; i < rows.length; i++) {
         if (text != "") text += "\n";
+        var aidStr = rows[i].isAidRecord ? "✚" : "";
+        var archStr = rows[i].isArchRecord ? "💾" : "";
         var txTypeStr = charCreditCard;
         if (rows[i].txType == _c.txTypes.cashWallet) txTypeStr = charMoney;
         var expTypeStr = util.viber.augmentExpType(rows[i].expType, rows[i].houseSubType, rows[i].miscSubType);
-        var dateTimeStr = util.viber.timeToUnicodeDisplayText(rows[i].txDate);
+        var dateTimeStr = util.viber.timeToHappyDisplayText(rows[i].txDate);
         var amountStr = rows[i].amount ? rows[i].amount + "₴" : "-";
-        text += "◦" + txTypeStr + amountStr + " *" + expTypeStr + "* " + dateTimeStr + " " + rows[i].fullDescription;
+        text += "◦" + aidStr + archStr + txTypeStr + amountStr + " *" + expTypeStr + "* " + dateTimeStr + " " + rows[i].fullDescription;
         if (rows[i].inTxRowNo) {
           text += " _[#" + rows[i].inTxRowNo + "]_";
         }

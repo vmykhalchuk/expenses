@@ -49,6 +49,8 @@ var _c = {
     inTx: {
       name: "InTx",
       
+      firstRowNo: 3,
+      
       statusCol: "A",
       dateCol: "B",
       txDateCol: "C",

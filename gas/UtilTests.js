@@ -6,10 +6,10 @@ var __testsSuitUtil = {
     assertEquals("Ⓦ", util.viber.augmentExpType("_week"));
   },
   
-  testTimeToUnicodeDisplayTextWrongDate: function() {
-    assertTrue(util.viber.timeToUnicodeDisplayText("wrong_date") == "E:wrong_date", "E:wrong_date");
-    assertTrue(util.viber.timeToUnicodeDisplayText(null) == "E:null", "E:null");
-    assertEquals("E:768765.789", util.viber.timeToUnicodeDisplayText(768765.789));
+  testTimeToHappyDisplayTextWrongDate: function() {
+    assertTrue(util.viber.timeToHappyDisplayText("wrong_date") == "E:wrong_date", "E:wrong_date");
+    assertTrue(util.viber.timeToHappyDisplayText(null) == "E:null", "E:null");
+    assertEquals("E:768765.789", util.viber.timeToHappyDisplayText(768765.789));
   },
   
   viberSplitToWords: function() {
@@ -61,21 +61,6 @@ var __testsSuitUtil = {
     var thiz = this;
     assertException(() => thiz.mock.funcToTest("failure"),"exception msg");
     assertNoException(() => thiz.mock.funcToTest(""));
-  }
-};
-
-function debugTest() {
-  var ss = SpreadsheetApp.getActive();
-  var stream1 = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.inTx.name), 2);
-  while(stream1.hasNext()) {
-    try {
-      var record = stream1.next();
-      if (!record) {
-        break;
-      }
-    } catch (err) {
-      console.error(err);
-    }
   }
 };
 
