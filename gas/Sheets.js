@@ -126,6 +126,7 @@ var _sheets = {
     
     var ss = SpreadsheetApp.getActive();
     var _c_inTx = _c.sheets.inTx;
+    // TODO refactor: below code lines to be automatically calculated
     var dateColNo = util.sheets.letterToColumn(_c_inTx.dateCol) - 1;
     var txDateColNo = util.sheets.letterToColumn(_c_inTx.txDateCol) - 1;
     var amountColNo = util.sheets.letterToColumn(_c_inTx.amountCol) - 1;
@@ -142,8 +143,8 @@ var _sheets = {
     var timedOut = false;
     var funcRecordToRowObj = function(values, displayValues, rowNo) {
       var fullDescr = util.sheets.calculateFullDescription(displayValues[monoDescriptionColNo],
-                                                                 displayValues[monoCommentColNo],
-                                                                 displayValues[myCommentColNo]);
+                                                           displayValues[monoCommentColNo],
+                                                           displayValues[myCommentColNo]);
       return {
         inTxRowNo: rowNo,
         txDate: values[txDateColNo] == "" ? values[dateColNo] : values[txDateColNo],
@@ -156,32 +157,33 @@ var _sheets = {
       };
     };
     
-    var streamMain = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.inTx.name), chunkSize);
-    var streamAid = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.aidTx.name), chunkSize);
-    var isArchivingStream = false;
-    var stream = util.comm.parallelizeTwoStreams(streamMain, streamAid,
-                                                 function(recMain, recAid) {
-                                                   return recMain.txDate < recAid.txDate;
-                                                 });
-    while(stream.hasNext() && !timedOut) {
-      var record = stream.next();
-      var isAidRecord = record.sheet.getName() === _c.sheets.aidTx.name;
-      var isArchRecord = record.sheet.getName() === _c.sheets.archTx.name;
-      var row = funcRecordToRowObj(record.values, record.displayValues, isAidRecord || isArchRecord ? null : record.rowNo);
-      row.isAidRecord = isAidRecord;
-      row.isArchRecord = isArchRecord;
+    var itMain = util.sheets.getSheetRowsReverseIterator(ss.getSheetByName(_c.sheets.inTx.name), chunkSize);
+    var itArch = util.sheets.getSheetRowsReverseIterator(ss.getSheetByName(_c.sheets.archTx.name), chunkSize);
+    var itMainArch = util.comm.concatenateTwoIterators(itMain, itArch);
+    var itAid = util.sheets.getSheetRowsReverseIterator(ss.getSheetByName(_c.sheets.aidTx.name), chunkSize);
+    var isArchivingIt = false;
+    var cmpFunc = function(recMainArch, recAid) {
+      var recMainArchTxDate = recMainArch.values[txDateColNo] == "" ? recMainArch.values[dateColNo] : recMainArch.values[txDateColNo]
+      var recAidTxDate = recAid.values[txDateColNo] == "" ? recAid.values[dateColNo] : recAid.values[txDateColNo]
+      return recMainArchTxDate > recAidTxDate;
+    };
+    var it = util.comm.mixTwoIterators(itMainArch, itAid, cmpFunc);// (recMainArch, recAid) => (recMainArch.txDate < recAid.txDate));
+    while(it.hasNext() && !timedOut) {
+      var record = it.next();
+      var row = funcRecordToRowObj(record.values, record.displayValues, record.rowNo);
+      row.isAidRecord = record.sheet.getName() === _c.sheets.aidTx.name;
+      row.isArchRecord = record.sheet.getName() === _c.sheets.archTx.name;
+      if (row.isAidRecord || row.isArchRecord) {
+        row.inTxRowNo = null;
+      }
+      
       if (!filterFunction || filterFunction(row)) {
         resultRows.push(row);
       }
-
-      if (resultRows.length == rowsN) break;
-
-      timedOut = (new Date().getTime() - startTime) > timeLimitThreshold;
       
-      if (!stream.hasNext() && !isArchivingStream) {
-        stream = util.sheets.getStreamOfRowsFromSheetInReverse(ss.getSheetByName(_c.sheets.archTx.name), chunkSize);
-        isArchivingStream = true;
-      }
+      if (resultRows.length == rowsN) break;
+      
+      timedOut = (new Date().getTime() - startTime) > timeLimitThreshold;
     }
     
     return { rows: resultRows, timedOut: timedOut };

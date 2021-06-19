@@ -23,14 +23,22 @@ function doProcessViberMessage(jsonObjStr) {
       throw "Viber wrong POST JSON call";
     }
   } catch (err) {
-    //_sheets.recordInTxRow({status: "V-ERR"}, jsonObjStr);
-    if (senderId) {
-      _viber.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err + "\n" + err.stack);
-    }
+    _viber._errorHandler(err, jsonObjStr, senderId);
   }
 }
 
 var _viber = {
+  
+  _errorHandler: function(err, jsonObjStr, senderId, senderName) {
+    //_sheets.recordInTxRow({status: "V-ERR"}, jsonObjStr);
+    var errMsg = "*⛔️ERROR:* " + err;
+    if (err.stack) errMsg += "\n" + err.stack;
+    if (senderId) {
+      _viber.sendReplyToViberBotUser(senderId, errMsg, senderName);
+    }
+    console.error(errMsg);
+  },
+  
   _viberBotCommands: {},
   
   _constructCommandsList: function() {
@@ -115,7 +123,7 @@ var _viber = {
       try {
         this[cmdObj.handler].call(this, cmdObj, request);
       } catch(err) {
-        this.sendReplyToViberBotUser(senderId, "*⛔️ERROR:* " + err + "\n" + err.stack, cmdObj.name);
+        _viber._errorHandler(err, jsonObjStr, senderId, cmdObj.name);
       }
       
     }

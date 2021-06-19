@@ -38,27 +38,29 @@ var util = {
       CacheService.getScriptCache().remove(key);
     },
     
-    parallelizeTwoStreams: function(stream1, stream2, pickSizeHandler) {
+    mixTwoIterators: function(it1, it2, pickSideHandler) {
       return {
-        stream1: stream1,
-        stream2: stream2,
-        handler: pickSizeHandler,
+        it1: it1,
+        it2: it2,
+        handler: pickSideHandler,
         
         hasNext: function() {
-          return this.stream1.hasNext() || this.stream2.hasNext();
+          return this.it1.hasNext() || this.it2.hasNext();
         },
         
         next: function() {
-          if (!this.stream1.hasNext()) {
-            return this.stream2.next();
-          } else if (this.stream2.hasNext()) {
-            return this.stream1.next();
-          } else {
-            if (this.handler(this.stream1.peek(), this.stream2.peek())) {
-              return this.stream1.next();
+          if (this.it1.hasNext() && this.it2.hasNext()) {
+            if (this.handler(this.it1.peek(), this.it2.peek())) {
+              return this.it1.next();
             } else {
-              return this.stream2.next();
+              return this.it2.next();
             }
+          } else if (this.it1.hasNext()) {
+            return this.it1.next();
+          } else if (this.it2.hasNext()) {
+            return this.it2.next();
+          } else {
+            return null;
           }
         },
         
@@ -68,28 +70,28 @@ var util = {
       };
     },
     
-    concatenateTwoStreams: function(stream1, stream2) {
+    concatenateTwoIterators: function(it1, it2) {
       return {
-        stream1: stream1,
-        stream2: stream2,
+        it1: it1,
+        it2: it2,
         
         hasNext: function() {
-          stream1.hasNext() || stream2.hasNext();
+          return it1.hasNext() || it2.hasNext();
         },
         
         next: function() {
-          if (stream1.hasNext()) {
-            return stream1.next();
+          if (it1.hasNext()) {
+            return it1.next();
           } else {
-            return stream2.next();
+            return it2.next();
           }
         },
         
         peek: function() {
-          if (stream1.hasNext()) {
-            return stream1.peek();
+          if (it1.hasNext()) {
+            return it1.peek();
           } else {
-            return stream2.peek();
+            return it2.peek();
           }
         }
       };
@@ -118,10 +120,13 @@ var util = {
       return webAppUrlDev;
     },
     
-    // if (util.gas.checkIfTokenRepeats(token, "Viber-message-")) {
-    //   console.warn("Duplicate viber message received: " + token);
-    //   throw "error";
-    // }
+    /*
+    * usage example:
+    *    if (util.gas.checkIfTokenRepeats(token, "Viber-message-")) {
+    *      console.warn("Duplicate viber message received: " + token);
+    *      throw "error";
+    *    }
+    */
     checkIfTokenRepeats: function(token, cachePref) {
       // check if cache contains this token already
       var cache = CacheService.getScriptCache();
@@ -339,9 +344,9 @@ var util = {
     },
     
     /**
-    returns stream with next(), hasNext() methods, to get next() element which is {values: [], displayValues: [], rowNo: int, sheet: Sheet }
+    returns iterator with next(), hasNext() methods, to get next() element which is {values: [], displayValues: [], rowNo: int, sheet: Sheet }
     */
-    getStreamOfRowsFromSheetInReverse: function(sheet, chunkSize) {
+    getSheetRowsReverseIterator: function(sheet, chunkSize) {
       
       var _calculateNextBatch = function() {
         this.rowFrom = this.rowTo - this.chunkSize + 1;
@@ -358,7 +363,7 @@ var util = {
           this.peekObj = null;
           return po;
         }
-
+        
         if (!this.hasNext()) {
           return null;
         }
@@ -381,7 +386,7 @@ var util = {
         }
       };
       
-      var stream = {
+      var iterator = {
         _calculateNextBatch: _calculateNextBatch,
         next: nextFunc,
         hasNext: function() {
@@ -401,8 +406,8 @@ var util = {
         rowTo: sheet.getLastRow(),
         lastColumnIndx: sheet.getLastColumn()
       };
-      stream._calculateNextBatch();
-      return stream;
+      iterator._calculateNextBatch();
+      return iterator;
     },
     
     columnToLetter: function(column) {

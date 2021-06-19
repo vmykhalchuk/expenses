@@ -1,13 +1,17 @@
 function runManualSheetsTest() {
+  var r = _sheets.getInTxLastNRows(3);
+  var z = r.length;
+  
+  /*
   var r1 = util.comm.evalCache("zzz-002", () => { util.viber.parseRawExpenseType("house:zzz") });
   var r1b = util.comm.evalCache("zzz-002", () => "jhjg");
   var r2 = util.viber.parseRawExpenseType("house:zzz");
-  //__manualTestsSuitSheets.getInTxLastNRows();
   //_sheets.updateSingleCellWithNewValueAndKeepOldValue(SpreadsheetApp.getActive().getRange("SheetRoman!A1"), "thats complicated", true);
   var res = _sheets.searchForDuplicateMonoTx("test01", 201);
   console.log("res: " + res);
   res = _sheets.searchForDuplicateMonoTx("test01");
   console.log("res: " + res);
+  */
 }
 
 var __manualTestsSuitSheets = {
@@ -25,11 +29,6 @@ var __manualTestsSuitSheets = {
     _sheets.fillRowWithDataFromSourceRow(sheet, {sourceRowNo: 2, targetRowNo: sheet.getLastRow() + 1, 
                                                  fillDateColNo: 2, skipRowIfColNo: 2,
                                                  preserveValueOfColNo: null});
-  },
-  
-  getInTxLastNRows: function() {
-    var r = _sheets.getInTxLastNRows(3);
-    var z = r.length;
   },
   
   formattingOfDate: function() {
