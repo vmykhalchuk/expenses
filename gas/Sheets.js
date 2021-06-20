@@ -117,7 +117,7 @@ var _sheets = {
   },
   
   getInTxLastNRows: function(rowsN, filterFunction) {
-    var timeLimitThreshold = 15*1000;
+    var timeLimitThreshold = 30*1000;
     var chunkSize = 20;
     
     var startTime = new Date().getTime();
@@ -167,7 +167,7 @@ var _sheets = {
       var recAidTxDate = recAid.values[txDateColNo] == "" ? recAid.values[dateColNo] : recAid.values[txDateColNo]
       return recMainArchTxDate > recAidTxDate;
     };
-    var it = util.comm.mixTwoIterators(itMainArch, itAid, cmpFunc);// (recMainArch, recAid) => (recMainArch.txDate < recAid.txDate));
+    var it = util.comm.mixTwoIterators(itMainArch, itAid, cmpFunc);
     while(it.hasNext() && !timedOut) {
       var record = it.next();
       var row = funcRecordToRowObj(record.values, record.displayValues, record.rowNo);
