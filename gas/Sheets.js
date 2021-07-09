@@ -279,20 +279,17 @@ var _sheets = {
     amountRange.setFormula(amountFormula);
     
     for (var i = 1; i <= splitCount; i++) {
-      var range = sheet.getRange(_c_inTx.dateCol + (rowNo + i));
-      range.setValue(new Date());
-    }
-    
-    for (var i = 1; i <= splitCount; i++) {
-      var range = sheet.getRange(_c_inTx.txDateCol + (rowNo + i));
-      var formula = "$" + _c_inTx.txDateCol + "$" + rowNo;
-      range.setFormula(formula);
-    }
-    
-    for (var i = 1; i <= splitCount; i++) {
-      var range = sheet.getRange(_c_inTx.txTypeCol + (rowNo + i));
-      var formula = "$" + _c_inTx.txTypeCol + "$" + rowNo;
-      range.setFormula(formula);
+      var dateRange = sheet.getRange(_c_inTx.dateCol + (rowNo + i));
+      dateRange.setValue(new Date());
+      
+      var columnCodes = [_c_inTx.txDateCol, _c_inTx.currencyCol, _c_inTx.exchRateCol, _c_inTx.monoMccCol,
+                         _c_inTx.monoDescriptionCol, _c_inTx.monoCommentCol,
+                        _c_inTx.txTypeCol,
+                        _c_inTx.myCommentCol];
+      for (var k in columnCodes) {
+        var range = sheet.getRange(columnCodes[k] + (rowNo + i));
+        range.setFormula("$" + columnCodes[k] + "$" + rowNo);
+      }
     }
   },
   
