@@ -11,7 +11,7 @@ function onOpen() {
   .addItem("🛠️Run Unit Tests", "runUnitTestsInSpreadsheetApp")
   .addItem("🚧Test", "onMenuDevTest")
   .addItem("✂Clean cache entry", "onMenuDevCleanCacheEntry");
-
+  
   SpreadsheetApp.getUi().createMenu("⚙️Z")
   .addItem("⚙️Register Viber Hook", "onMenuRegisterViberHook")
   .addItem("⚙️Register MonoBank Hook", "onMenuRegisterMonoBankHook")
@@ -206,7 +206,7 @@ function onMenuDevTest() {
   ui.alert("" + Object.keys(util.viber.getUserFriendlyMapOfExpenseTypes()).join(", "));
   //ui.alert("" + util.viber.parseRawExpenseType("mi:bod").subType);
   //ui.alert("Test!!!\n" + SpreadsheetApp.getActive().getRange("Data!A55").getValue());
-
+  
   //ui.alert("isRange: " + (SpreadsheetApp.getActive().getRange("InTx!A1") == "Range"));
 }
 

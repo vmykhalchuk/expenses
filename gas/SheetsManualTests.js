@@ -20,7 +20,7 @@ var __manualTestsSuitSheets = {
   },
   
   modifyBalanceV2: function() {
-    modifyBalanceV2(-300, "TestRange");
+    _sheets.modifyBalanceV2(-300, "TestRange");
   },
   
   fillRowWithDataFromSourceRow_insertAtTheEndOfInTxSheet: function() {

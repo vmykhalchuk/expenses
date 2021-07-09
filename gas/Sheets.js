@@ -1,51 +1,51 @@
-function sheetsStartNextWeek() {
-  var weekStartTime = new Date();
-  var ss = SpreadsheetApp.getActive();
-  var sheet = ss.getSheetByName(_c.sheets.data.name);
-  var v = sheet.getRange("B10").getValue();
-  var f = sheet.getRange("B10").getFormula();
-  var dv = sheet.getRange("B10").getDisplayValue();
-  sheet.getRange("TestRange").setValue(Math.round(v*10000) / 10000);
-}
-
-function recordBalance(balance, namedRangeName, skipFlush) {
-  var ss = SpreadsheetApp.getActive();
-  var range = ss.getRangeByName(namedRangeName);
-  range.setValue(balance);
-  if (!skipFlush) SpreadsheetApp.flush();
-}
-
-function modifyBalanceV2(balanceDelta, namedRangeName, skipFlush) {
-  var ss = SpreadsheetApp.getActive();
-  var range = ss.getRangeByName(namedRangeName);
-  
-  var prevFormula = range.getFormula();
-  if (prevFormula == "") {
-    prevFormula = "=(" + range.getValue() + ")";
-  }
-  range.setFormula(prevFormula + "+(" + balanceDelta + ")");
-  if (!skipFlush) SpreadsheetApp.flush();
-}
-
-function getDataStatus() {
-  var ss = SpreadsheetApp.getActive();
-  var sheet = ss.getSheetByName(_c.sheets.data.name);
-  
-  var dataStatus = {
-    kycja: sheet.getRange(_c.sheets.nr.status.kycjaAccountAvailable).getDisplayValue(),
-    wallet: sheet.getRange(_c.sheets.nr.balance.wallet).getDisplayValue(),
-    weekly: sheet.getRange(_c.sheets.nr.status.weeklyBalance).getDisplayValue(),
-    weekly2: sheet.getRange(_c.sheets.nr.status.weeklyBalance2).getDisplayValue(),
-    noExpTypeDefinedCount: sheet.getRange(_c.sheets.nr.status.noExpTypeDefined).getDisplayValue(),
-    kredoDebt: sheet.getRange(_c.sheets.nr.status.kredoDebt).getDisplayValue(),
-    monoBlackBalance: sheet.getRange(_c.sheets.nr.balance.monoBlack).getDisplayValue(),
-    kredoBlackBalance: sheet.getRange(_c.sheets.nr.balance.kredoBlack).getDisplayValue()
-  };
-  
-  return dataStatus;
-}
-
 var _sheets = {
+  
+  sheetsStartNextWeek: function () {
+    var weekStartTime = new Date();
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(_c.sheets.data.name);
+    var v = sheet.getRange("B10").getValue();
+    var f = sheet.getRange("B10").getFormula();
+    var dv = sheet.getRange("B10").getDisplayValue();
+    sheet.getRange("TestRange").setValue(Math.round(v*10000) / 10000);
+  },
+  
+  recordBalance: function(balance, namedRangeName, skipFlush) {
+    var ss = SpreadsheetApp.getActive();
+    var range = ss.getRangeByName(namedRangeName);
+    range.setValue(balance);
+    if (!skipFlush) SpreadsheetApp.flush();
+  },
+  
+  modifyBalanceV2: function(balanceDelta, namedRangeName, skipFlush) {
+    var ss = SpreadsheetApp.getActive();
+    var range = ss.getRangeByName(namedRangeName);
+    
+    var prevFormula = range.getFormula();
+    if (prevFormula == "") {
+      prevFormula = "=(" + range.getValue() + ")";
+    }
+    range.setFormula(prevFormula + "+(" + balanceDelta + ")");
+    if (!skipFlush) SpreadsheetApp.flush();
+  },
+  
+  getDataStatus: function() {
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(_c.sheets.data.name);
+    
+    var dataStatus = {
+      kycja: sheet.getRange(_c.sheets.nr.status.kycjaAccountAvailable).getDisplayValue(),
+      wallet: sheet.getRange(_c.sheets.nr.balance.wallet).getDisplayValue(),
+      weekly: sheet.getRange(_c.sheets.nr.status.weeklyBalance).getDisplayValue(),
+      weekly2: sheet.getRange(_c.sheets.nr.status.weeklyBalance2).getDisplayValue(),
+      noExpTypeDefinedCount: sheet.getRange(_c.sheets.nr.status.noExpTypeDefined).getDisplayValue(),
+      kredoDebt: sheet.getRange(_c.sheets.nr.status.kredoDebt).getDisplayValue(),
+      monoBlackBalance: sheet.getRange(_c.sheets.nr.balance.monoBlack).getDisplayValue(),
+      kredoBlackBalance: sheet.getRange(_c.sheets.nr.balance.kredoBlack).getDisplayValue()
+    };
+    
+    return dataStatus;
+  },
   
   recordAidTxRow: function(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/,
                            jsonObjStr, skipFlush) {
@@ -284,8 +284,8 @@ var _sheets = {
       
       var columnCodes = [_c_inTx.txDateCol, _c_inTx.currencyCol, _c_inTx.exchRateCol, _c_inTx.monoMccCol,
                          _c_inTx.monoDescriptionCol, _c_inTx.monoCommentCol,
-                        _c_inTx.txTypeCol,
-                        _c_inTx.myCommentCol];
+                         _c_inTx.txTypeCol,
+                         _c_inTx.myCommentCol];
       for (var k in columnCodes) {
         var range = sheet.getRange(columnCodes[k] + (rowNo + i));
         range.setFormula("$" + columnCodes[k] + "$" + rowNo);

@@ -14,9 +14,9 @@
 
 // Define async function
 function runSlowTask(user_id, is_active) {
-  console.log('runSlowTask()', { user_id: user_id, is_active: is_active });
-  Utilities.sleep(5000);
-  console.log('runSlowTask() - FINISHED!')
+console.log('runSlowTask()', { user_id: user_id, is_active: is_active });
+Utilities.sleep(5000);
+console.log('runSlowTask() - FINISHED!')
 }
 
 // Run function asynchronously

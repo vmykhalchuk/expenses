@@ -108,7 +108,7 @@ var _c = {
       }
     }
   },
-
+  
   caches: ["listOfExpenseTypes", "listOfHouseSubTypes", "listOfMiscSubTypes"],
   cachesLocal: ["userFriendlyListOfExpenseTypes"]
 };

@@ -282,7 +282,7 @@ var _viber = {
       } else if (txType == _c.txTypes.monoWhite) {
         namedRangeName = _c.sheets.nr.balance.monoWhite;
       }
-      modifyBalanceV2(amountF, namedRangeName);
+      _sheets.modifyBalanceV2(amountF, namedRangeName);
     }
   },
   
@@ -462,7 +462,7 @@ var _viber = {
   },
   
   _processStatusCommand: function(cmdObj, req) {
-    var dataStatus = getDataStatus();
+    var dataStatus = _sheets.getDataStatus();
     var weeklyToProcessStr = dataStatus.noExpTypeDefinedCount;
     if (weeklyToProcessStr && weeklyToProcessStr.indexOf(":") > 0) {
       weeklyToProcessStr = weeklyToProcessStr.substring(weeklyToProcessStr.indexOf(":") + 1).trim();

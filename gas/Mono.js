@@ -85,7 +85,7 @@ function processMonoMessageAsyncHandler(monoTxRowNo, jsonObj, jsonObjStr) {
   
   if (registerKredoBlackKredit) {
     var amountF = rowNo > 2 ? ("-" + _c.sheets.inTx.name + "!" + _c.sheets.inTx.amountCol + rowNo) : -rowObj.amount;
-    modifyBalanceV2(amountF, _c.sheets.nr.balance.kredoBlack);
+    _sheets.modifyBalanceV2(amountF, _c.sheets.nr.balance.kredoBlack);
   }
   
   _sheets.setMonoTxStatus(monoTxRowNo,"DONE");
