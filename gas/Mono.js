@@ -75,10 +75,10 @@ function processMonoMessageAsyncHandler(monoTxRowNo, jsonObj, jsonObjStr) {
   _sheets.setMonoTxStatus(monoTxRowNo,"STEP1");
   
   if (c_AccMonoWhite === data.account && rowObj.monoBalance) {
-    recordBalance(rowObj.monoBalance, _c.sheets.nr.balance.monoWhite);
+    _sheets.recordBalance(rowObj.monoBalance, _c.sheets.nr.balance.monoWhite);
   }
   if (c_AccMonoBlack === data.account && rowObj.monoBalance) {
-    recordBalance(rowObj.monoBalance, _c.sheets.nr.balance.monoBlack);
+    _sheets.recordBalance(rowObj.monoBalance, _c.sheets.nr.balance.monoBlack);
   }
   
   _sheets.setMonoTxStatus(monoTxRowNo,"STEP2");
