@@ -4,6 +4,7 @@ function runManualViberTest() {
 
 var __manualTestsSuitViber = {
   run: function() {
+    this.processLastCommand();
     //this.processCashOrKredoCommand();
     //_viber.sendReplyToViberBotUser(this.senderId, "Test message");
   },
@@ -14,10 +15,6 @@ var __manualTestsSuitViber = {
     var words = ["c", "100", "week", "n", "test"];
     var wordsLC = words;
     _viber.processCashOrKredoCommand(_c.txTypes.cashWallet, false, words, wordsLC, "");
-  },
-  
-  processLastCommand: function() {
-    processLastCommand(5, null, this.senderId, "");
   }
   
 };

@@ -52,13 +52,16 @@ var _sheets = {
     return this._recordRow(rowObj, jsonObjStr, _c.sheets.aidTx.name, skipFlush);
   },
   
+  // example usage: _sheets.recordInTxRow({status: "V-ERR"}, jsonObjStr);
   recordInTxRow: function(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/,
                           jsonObjStr, skipFlush) {
     return this._recordRow(rowObj, jsonObjStr, _c.sheets.inTx.name, skipFlush);
   },
   
-  _recordRow: function(rowObj /*status, txDate, amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/,
+  _recordRow: function(rowObj /*status, txDate(if null then use current), amount, monoMcc, description, comment, txType, expType, houseSubType, miscSubType, registered, myComment*/,
                        jsonObjStr, sheetName, skipFlush) {
+    
+    // FIXME if txDate is null - then use reference formula to refer to dateCol
     if (!rowObj) return -1;
     
     var ss = SpreadsheetApp.getActive();

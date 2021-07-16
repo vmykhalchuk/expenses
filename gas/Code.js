@@ -129,9 +129,16 @@ function onMenuRegisterMonoBankHook() {
       }
     }
     
-    ScriptApp.newTrigger("onTrigger4MonoBankWebHookRefresh").timeBased().everyMinutes(30).create();
-    
-    onTrigger4MonoBankWebHookRefresh(); // register now - to avoid waiting for 30min
+    if (false) {//FIXME this now doesn't work
+      ScriptApp.newTrigger("onTrigger4MonoBankWebHookRefresh").timeBased().everyMinutes(30).create();
+      
+      onTrigger4MonoBankWebHookRefresh(); // register now - to avoid waiting for 30min
+    } else {
+      // FIXME define URL if changes (when new deplyment):
+      // Move this URL to config or better to cache - and set it via Menu
+      var gasUrl = "https://script.google.com/macros/s/AKfycbwrckqk8BqS5ah_PUqzn9nttYTAZcwu7RJknesXyRxp5K-ELkk/exec";
+      _mono.registerWebHook(gasUrl);
+    }
   } else {
     ui.alert("⚠️Provide MonoBank API Token to set web hook!");
   }
@@ -162,9 +169,16 @@ function onMenuRegisterViberHook() {
       }
     }
     
-    ScriptApp.newTrigger("onTrigger4ViberWebHookRefresh").timeBased().everyMinutes(30).create();
-    
-    onTrigger4ViberWebHookRefresh(); // register now - to avoid waiting for 30min
+    if (false) {//FIXME this now doesn't work
+      ScriptApp.newTrigger("onTrigger4ViberWebHookRefresh").timeBased().everyMinutes(30).create();
+      
+      onTrigger4ViberWebHookRefresh(); // register now - to avoid waiting for 30min
+    } else {
+      // FIXME define URL if changes (when new deplyment):
+      // Move this URL to config or better to cache - and set it via Menu
+      var gasUrl = "https://script.google.com/macros/s/AKfycbwrckqk8BqS5ah_PUqzn9nttYTAZcwu7RJknesXyRxp5K-ELkk/exec";
+      _viber.registerWebHook(gasUrl);
+    }
   } else {
     ui.alert("⚠️Provide Viber Token to set web hook!");
   }

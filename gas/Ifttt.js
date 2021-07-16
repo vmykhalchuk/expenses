@@ -10,7 +10,7 @@ var _ifttt = {
     }
     var balanceStr = smsText.substring(balanceWordIdx + balanceWordStr.length);
     var balance = parseFloat(balanceStr);
-    if (balance) recordBalance(balance, _c.sheets.nr.balance.kredoBlack);
+    if (balance) _sheets.recordBalance(balance, _c.sheets.nr.balance.kredoBlack);
   }
   
 }

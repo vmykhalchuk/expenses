@@ -1,5 +1,13 @@
 var __testsSuitUtil = {
   
+  checkUnderscoreLibrary: function() {
+    //util.sys.initializeUnderscore();
+    _i();
+    assertTrue(_.isFunction(console.log));
+    assertFalse(_.isFunction("not a function"));
+    assertFalse(_.isFunction(null));
+  },
+  
   augmentExpType: function() {
     assertEquals("none", util.viber.augmentExpType("_none"));
     assertEquals("none", util.viber.augmentExpType("none"));

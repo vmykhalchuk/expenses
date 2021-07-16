@@ -109,6 +109,6 @@ var _c = {
     }
   },
   
-  caches: ["listOfExpenseTypes", "listOfHouseSubTypes", "listOfMiscSubTypes"],
+  caches: ["listOfExpenseTypes", "listOfHouseSubTypes", "listOfMiscSubTypes", "underscoreJSCode"],
   cachesLocal: ["userFriendlyListOfExpenseTypes"]
 };

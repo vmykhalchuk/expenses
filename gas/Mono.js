@@ -125,7 +125,11 @@ var _mono = {
       "payload": JSON.stringify(data)
     };
     var response = UrlFetchApp.fetch("https://api.monobank.ua/personal/webhook", options);
-    // TODO add validation of response code, to know if succeeded
+    console.log("response code: " + response.getResponseCode());
+    console.log("response text: " + response.getContentText());
+    if (response.getResponseCode() != 200) {
+      // TODO When call fails because of wrong authToken provided - remove it from Properties and let user know that it failed and should be reentered!
+    }
     return response;
   }
   

@@ -1,3 +1,7 @@
+var _i = function() {
+  util.sys.initializeUnderscore();
+};
+
 var _util_cache = {};
 
 var util = {
@@ -95,6 +99,18 @@ var util = {
           }
         }
       };
+    }
+  },
+  
+  sys: {
+    isUnderscoreInitialized: false,
+    initializeUnderscore: function() {
+      if (!this.isUnderscoreInitialized) {
+        var undercoreJSCode = util.comm.evalCache("underscoreJSCode",
+                                                  () => UrlFetchApp.fetch('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js').getContentText());
+        eval(undercoreJSCode);
+        this.isUnderscoreInitialized = true;
+      }
     }
   },
   
