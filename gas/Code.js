@@ -7,6 +7,12 @@ var _codeConst = {
 };
 
 function onOpen() {
+  // Create Navigation menu
+  SpreadsheetApp.getUi().createMenu("Nav")
+  .addItem("Bottom", "onMenuNavBottom")
+  .addToUi();
+  
+  // Create developer menu
   var devMenu = SpreadsheetApp.getUi().createMenu("🛠️Dev")
   .addItem("🛠️Run Unit Tests", "runUnitTestsInSpreadsheetApp")
   .addItem("🚧Test", "onMenuDevTest")
@@ -101,6 +107,12 @@ function doPostIfttt(e) {
     _sheets.recordInTxRow({status: status}, e.postData.contents);
   }
   return HtmlService.createHtmlOutput("this is message from ifttt (sms received)");
+}
+
+function  onMenuNavBottom() {
+  var activeSheet = SpreadsheetApp.getActiveSheet();
+  var lastRowNo = activeSheet.getLastRow();
+  SpreadsheetApp.getActiveSpreadsheet().setActiveSelection("A" + (lastRowNo + 1));
 }
 
 function onMenuRegisterMonoBankHook() {
