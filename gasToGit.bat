@@ -7,7 +7,7 @@ call clasp pull
 cd ..
 
 git add .
-git diff
+git diff --cached
 
 set /p gitmessage="Enter commit message: "
 rem trim gitmessage from the left (no good to code to trim right)

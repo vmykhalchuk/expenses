@@ -2,5 +2,6 @@
 cd gas
 call clasp pull
 cls
-git diff
+git add .
+git diff --cached
 pause
