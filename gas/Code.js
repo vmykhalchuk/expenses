@@ -10,6 +10,8 @@ function onOpen() {
   // Create Navigation menu
   SpreadsheetApp.getUi().createMenu("🟈Nav")
   .addItem("⤓Bottom", "onMenuNavBottom")
+  .addItem("Reporting...", "onMenuNavToReportingSpreadsheet")
+  .addItem("Reporting House...", "onMenuNavToReportingHouseSpreadsheet")
   .addToUi();
   
   // Create developer menu
@@ -19,10 +21,10 @@ function onOpen() {
   .addItem("✂Clean cache entry", "onMenuDevCleanCacheEntry");
   
   SpreadsheetApp.getUi().createMenu("⚙️Z")
+  .addItem("▶⏸Execute Command", "onMenuExecuteCommand")
   .addItem("⚙️Register Viber Hook", "onMenuRegisterViberHook")
   .addItem("⚙️Register MonoBank Hook", "onMenuRegisterMonoBankHook")
   .addItem("💡Help", "onMenuHelp")
-  .addItem("🚧Mono reg tx", "onMenuMonoRegisterTxManually")
   .addSubMenu(devMenu)
   .addToUi();
   // TODO validate if Viber/Mono Hook has failed, if yes - show popup stating this error!

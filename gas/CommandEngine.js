@@ -1,5 +1,5 @@
 var runManually = function() {
-  var cmdToRun = "test";
+  var cmdToRun = "last 2";
   _commandEngine.executeCommand(cmdToRun, null, (text, senderName, messageTrackingData) => console.log("[" + senderName + "] " + text));
 };
 

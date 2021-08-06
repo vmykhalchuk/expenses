@@ -8,14 +8,38 @@ function onMenuNavBottom() {
   activeSheet.setActiveSelection(range);
 }
 
+function onMenuNavToReportingSpreadsheet() {
+  var reportingSpreadsheetUrl = "https://docs.google.com/spreadsheets/d/1sbE2aPq8cySn7WxuU_ESgwx4qKsj_VSBQr-hfu6p06s/edit";
+  util.misc.openUrl(reportingSpreadsheetUrl);
+}
+
+function onMenuNavToReportingHouseSpreadsheet() {
+  var reportingHouseSpreadsheetUrl = "https://docs.google.com/spreadsheets/d/1LLrYroVBsMYfL0UobvxYvtUAQR4UqioqV0CmuX-jG1U/edit";
+  util.misc.openUrl(reportingHouseSpreadsheetUrl);
+}
+
+function onMenuExecuteCommand() {
+  var ui = SpreadsheetApp.getUi();
+  var promptRes = ui.prompt("Enter command to execute:");
+  var cmdToRun;
+  if (promptRes.getSelectedButton() == ui.Button.OK) {
+    cmdToRun = promptRes.getResponseText();
+  }
+  
+  if (cmdToRun) {
+    _commandEngine.executeCommand(cmdToRun, null, (text, senderName, messageTrackingData) => ui.alert(senderName, text, ui.ButtonSet.OK));
+  }
+}
+
 function onMenuRegisterMonoBankHook() {
   
+  var ui = SpreadsheetApp.getUi();
+  
   if (!util.gas.checkWebAppState()) {
-    SpreadsheetApp.getUi().alert(_codeConst.registerWebAppAlertMsg);
+    ui.alert(_codeConst.registerWebAppAlertMsg);
     return;
   }
   
-  var ui = SpreadsheetApp.getUi();
   var response = ui.prompt("Enter MonoBank API Token here.\nRead \"Z > Help\" for instructions where to get Token from.");
   var monobankToken;
   if (response.getSelectedButton() == ui.Button.OK) {
@@ -109,14 +133,6 @@ function onMenuHelp() {
   //.setWidth(800) //optional
   //.setHeight(500); //optional
   SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Z Help 💡');
-}
-
-function onMenuMonoRegisterTxManually() {
-  // manually register Mono Tx that missed by some reason
-  var ui = SpreadsheetApp.getUi();
-  var expenseAmount = ui.prompt("Enter amount").getResponseText();
-  var expenseType = ui.prompt("Enter expense type").getResponseText();
-  ui.alert("Amount: " + expenseAmount + "\nType: " + expenseType);
 }
 
 function onMenuDevTest() {
