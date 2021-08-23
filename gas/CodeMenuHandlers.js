@@ -18,6 +18,11 @@ function onMenuNavToReportingHouseSpreadsheet() {
   util.misc.openUrl(reportingHouseSpreadsheetUrl);
 }
 
+function onMenuNavToReportingDevTestSpreadsheet() {
+  var reportingSsUrl = _reporting.getReportingSpreadsheetUrl();
+  util.misc.openUrl(reportingSsUrl);
+}
+
 function onMenuExecuteCommand() {
   var ui = SpreadsheetApp.getUi();
   var promptRes = ui.prompt("Enter command to execute:");
@@ -120,6 +125,18 @@ function onTrigger4MonoBankWebHookRefresh() {
 
 function onTrigger4ViberWebHookRefresh() {
   _viber.registerWebHook(util.gas.getWebAppDevUrlWithAccessToken());
+}
+
+function onMenuInitializeReportingSpreadsheet() {
+  if (_reporting.getReportingSpreadsheetUrl()) {
+    var ui = SpreadsheetApp.getUi();
+    var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it and continue?", ui.ButtonSet.YES_NO);
+    
+    if (res/*.getSelectedButton()*/ === ui.Button.YES) {
+      _reporting.deleteReportingSpreadsheet();
+    }
+  }
+  _reporting.initializeReportingSpreadsheet();
 }
 
 function onMenuHelp() {

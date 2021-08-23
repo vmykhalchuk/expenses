@@ -12,17 +12,26 @@ var util = {
       return s.charAt(0).toUpperCase() + s.slice(1);
     },
     
-    evalLocalCache: function(key, evalFunc) {
+    evalLocalCache: function(key, evalFunc, lockOnEvaluation) {
       if (_c.cachesLocal.indexOf(key) == -1 && _c.caches.indexOf(key) == -1) {
         throw new Error("Wrong local cache key: " + key);
       }
       if (!_util_cache[key]) {
+        var lock;
+        if (lockOnEvaluation) {
+          lock = LockService.getScriptLock();
+          lock.waitLock(5000);
+          if (_util_cache[key]) return _util_cache[key];
+        }
         _util_cache[key] = evalFunc.call();
+        if (lockOnEvaluation) {
+          lock.releaseLock();
+        }
       }
       return _util_cache[key];
     },
     
-    evalCache: function(key, evalFunc) {
+    evalCache: function(key, evalFunc, lockOnEvaluation) {
       if (_c.caches.indexOf(key) == -1) {
         throw new Error("Wrong cache key: " + key);
       }
@@ -34,7 +43,7 @@ var util = {
           CacheService.getScriptCache().put(key, cacheRes, 21600 /*6h*/);
         }
         return cacheRes;
-      });
+      }, lockOnEvaluation);
     },
     
     removeCacheEntry: function(key) {
@@ -107,7 +116,8 @@ var util = {
     initializeUnderscore: function() {
       if (!this.isUnderscoreInitialized) {
         var undercoreJSCode = util.comm.evalCache("underscoreJSCode",
-                                                  () => UrlFetchApp.fetch('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js').getContentText());
+                                                  () => UrlFetchApp.fetch('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js').getContentText()
+        );
         eval(undercoreJSCode);
         this.isUnderscoreInitialized = true;
       }
@@ -212,7 +222,6 @@ var util = {
       }
       
       return datePortionStr + " " + dateTime.toLocaleTimeString("uk-UK").slice(0,5);
-      
     },
     
     isDateCode: function(code) {
@@ -322,7 +331,7 @@ var util = {
         expenseTypes.forEach(el => (res[thiz._expenseTypeToUserFriendlyExpType(el)] = el));
         return res;
       };
-      return util.comm.evalLocalCache("userFriendlyListOfExpenseTypes", lambda);
+      return util.comm.evalLocalCache("userFriendlyListOfExpenseTypes", lambda, true);
     },
     
     _expenseTypeToUserFriendlyExpType: function(expType) {
@@ -449,7 +458,7 @@ var util = {
     /**
     * Open a URL in a new tab.
     */
-    openUrl: function ( url ){
+    openUrl: function (url) {
       var html = HtmlService.createHtmlOutput('<html><script>'
                                               +'window.close = function(){window.setTimeout(function(){google.script.host.close()},9)};'
                                               +'var a = document.createElement("a"); a.href="'+url+'"; a.target="_blank";'

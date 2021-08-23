@@ -3,8 +3,8 @@ function runManualSheetsTest() {
   var z = r.length;
   
   /*
-  var r1 = util.comm.evalCache("zzz-002", () => { util.viber.parseRawExpenseType("house:zzz") });
-  var r1b = util.comm.evalCache("zzz-002", () => "jhjg");
+  var r1 = util.comm.evalCache("zzz-002", () => { util.viber.parseRawExpenseType("house:zzz") }, true);
+  var r1b = util.comm.evalCache("zzz-002", () => "jhjg", true);
   var r2 = util.viber.parseRawExpenseType("house:zzz");
   //_sheets.updateSingleCellWithNewValueAndKeepOldValue(SpreadsheetApp.getActive().getRange("SheetRoman!A1"), "thats complicated", true);
   var res = _sheets.searchForDuplicateMonoTx("test01", 201);

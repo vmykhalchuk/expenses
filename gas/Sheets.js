@@ -264,8 +264,11 @@ var _sheets = {
     if (splitCount == 3) newExpTypeVal = _c.expTypes.split3;
     if (splitCount == 4) newExpTypeVal = _c.expTypes.split4;
     this.updateSingleCellWithNewValueAndKeepOldValue(expTypeRange, newExpTypeVal, true);
-    var myCommentRange = sheet.getRange(_c_inTx.myCommentCol + rowNo);
-    this.updateSingleCellWithNewValueAndKeepOldValue(myCommentRange, newMyComment, true);
+    
+    if (newMyComment) {
+      var myCommentRange = sheet.getRange(_c_inTx.myCommentCol + rowNo);
+      this.updateSingleCellWithNewValueAndKeepOldValue(myCommentRange, newMyComment, true);
+    }
     
     if (origExpTypeVal != "") {
       var lastRecordExpTypeRange = sheet.getRange(_c_inTx.expenseTypeCol + (rowNo + splitCount));
@@ -379,25 +382,19 @@ var _sheets = {
   
   getListOfExpenseTypes: function() {
     var str = util.comm.evalCache(
-      "listOfExpenseTypes",
-      () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.expenseTypes).join(',')
-    );
+      "listOfExpenseTypes", () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.expenseTypes).join(','), true);
     return str.split(',');
   },
   
   getListOfHouseSubTypes: function() {
     var str = util.comm.evalCache(
-      "listOfHouseSubTypes",
-      () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.houseSubTypes).join(',')
-    );
+      "listOfHouseSubTypes", () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.houseSubTypes).join(','), true);
     return str.split(',');
   },
   
   getListOfMiscSubTypes: function() {
     var str = util.comm.evalCache(
-      "listOfMiscSubTypes",
-      () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.miscSubTypes).join(',')
-    );
+      "listOfMiscSubTypes", () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.miscSubTypes).join(','), true);
     return str.split(',');
   },
   
@@ -459,6 +456,11 @@ var _sheets = {
     var ss = SpreadsheetApp.getActive();
     var sheet = ss.getSheetByName(_c.sheets.mono.name);
     sheet.getRange(_c.sheets.mono.statusCol + rowNo).setValue(status);
+  },
+  
+  getMainSsId: function() {
+    var ss = SpreadsheetApp.getActive();
+    return ss.getId();
   }
   
 };

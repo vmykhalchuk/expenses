@@ -6,27 +6,48 @@ var _codeConst = {
   registerWebAppAlertMsg: "⛔️ Deploy Script as Web App!\nGo to \"Tools > Script editor\", and in Script editor select \"Publish > Deploy as web app...\""
 };
 
-function onOpen() {
+function createNavMenuItems() {
   // Create Navigation menu
-  SpreadsheetApp.getUi().createMenu("🟈Nav")
+  var navMenu = SpreadsheetApp.getUi().createMenu("🟈Nav")
   .addItem("⤓Bottom", "onMenuNavBottom")
   .addItem("Reporting...", "onMenuNavToReportingSpreadsheet")
-  .addItem("Reporting House...", "onMenuNavToReportingHouseSpreadsheet")
-  .addToUi();
-  
+  .addItem("Reporting House...", "onMenuNavToReportingHouseSpreadsheet");
+  if (_reporting.getReportingSpreadsheetUrl()) {
+    navMenu.addItem("Reporting (Dev Test)...", "onMenuNavToReportingDevTestSpreadsheet")
+  }
+  navMenu.addToUi();
+}
+
+function createZMenuItems() {
   // Create developer menu
   var devMenu = SpreadsheetApp.getUi().createMenu("🛠️Dev")
   .addItem("🛠️Run Unit Tests", "runUnitTestsInSpreadsheetApp")
   .addItem("🚧Test", "onMenuDevTest")
   .addItem("✂Clean cache entry", "onMenuDevCleanCacheEntry");
   
-  SpreadsheetApp.getUi().createMenu("⚙️Z")
+  var zMenu = SpreadsheetApp.getUi().createMenu("⚙️Z")
   .addItem("▶⏸Execute Command", "onMenuExecuteCommand")
   .addItem("⚙️Register Viber Hook", "onMenuRegisterViberHook")
   .addItem("⚙️Register MonoBank Hook", "onMenuRegisterMonoBankHook")
+  .addItem("⚙️Initialize Reporting Spreadsheet", "onMenuInitializeReportingSpreadsheet")
   .addItem("💡Help", "onMenuHelp")
-  .addSubMenu(devMenu)
-  .addToUi();
+  .addSubMenu(devMenu);
+  
+  zMenu.addToUi();
+}
+
+function recreateMenu() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ss.removeMenu("🟈Nav");
+  createNavMenuItems();
+  ss.removeMenu("⚙️Z");
+  createZMenuItems();
+}
+
+function onOpen() {
+  createNavMenuItems();
+  createZMenuItems();
+  
   // TODO validate if Viber/Mono Hook has failed, if yes - show popup stating this error!
   //SpreadsheetApp.getActiveSpreadsheet().toast('Viber Hook failed!', 'Status', -1);
   //SpreadsheetApp.getUi().alert("Viber Hook failed!");

@@ -1,4 +1,6 @@
 /**
+TODO: Remove this class
+
 Usage is simple:
 - multiPropertiesLock.waitLock("<lock_name>", <waitTimeMs>, <maxLockAgeMs>)
 - here maxLockAgeMs is used to automatically discard lock which has been locked in the system for time longer then stated here
