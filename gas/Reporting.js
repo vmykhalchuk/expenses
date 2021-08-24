@@ -47,10 +47,17 @@ var _reporting = {
       var diSheet = this.reportingSs.getActiveSheet();
       diSheet.setName("Data Ingest");
       var mainSsId = _sheets.getMainSsId();
-      var aidValuesRange = "AidTx!A3:Q";
-      var ingestFormula = '=QUERY({IMPORTRANGE("' + mainSsId + '", "' + aidValuesRange + '");IMPORTRANGE(\"" + mainSsId + "\", \"ArchTx!A3:Q\");IMPORTRANGE(\"" + mainSsId + "\", \"InTx!A3:Q\")},' +
-        "\"SELECT Col3, Col4, Col5, Col7, Col10, Col11, Col16, Col17 WHERE Col3 > date '2011-11-17' AND Col11<>'_none' AND Col11<>'_other' AND Col11<>'_split_2' AND Col11<>'_split_3' AND Col11<>'_split_4' AND Col11<>''\")";
-      var headerColNames = [["TX Date", "Amount UAH", "Currency", "Mono MCC", "Tx Type", "Exp Type", "Misc\nSub Type", "House\nSub Type"]];
+      var aidTxValuesRange = _c.sheets.aidTx.name + "!A3:Q";
+      var archTxValuesRange = _c.sheets.archTx.name + "!A3:Q";
+      var inTxValuesRange = _c.sheets.inTx.name + "!A3:Q";
+      var ingestFormula = '=QUERY({IMPORTRANGE("' + mainSsId + '", "' + aidTxValuesRange + '");' +
+        'IMPORTRANGE("' + mainSsId + '", "' + archTxValuesRange + '");' +
+        'IMPORTRANGE("' + mainSsId + '", "' + inTxValuesRange + '")},' +
+        "\"SELECT Col3, Col4, Col5, Col7, Col10, Col11, Col16, Col17 " +
+        "WHERE Col3 > date '2011-11-17' AND Col11<>'_none' AND Col11<>'_other' " +
+        "AND Col11<>'_split_2' AND Col11<>'_split_3' AND Col11<>'_split_4' AND Col11<>''\")";
+      var headerColNames = [["TX Date", "Amount UAH", "Currency", "Mono MCC",
+        "Tx Type", "Exp Type", "Misc\nSub Type", "House\nSub Type"]];
       
       var firstRowRange = diSheet.getRange(1, 1, 1, headerColNames[0].length);
       firstRowRange.setValues(headerColNames);
@@ -89,6 +96,9 @@ var _reporting = {
       }
       mrSheet.getRange("A5:A50").setBackground("lightgray");
       mrSheet.getRange("A5:A50").setFontWeight("bold");
+
+      // experimental part:
+      mrSheet.getRange("A1").setFormula('=SPARKLINE(E6:6,{"charttype","column";"axis",true;"axiscolor","blue";"color","red";"negcolor","black"})');
       
       mrSheet.hideRows(4);
       mrSheet.setFrozenColumns(5);

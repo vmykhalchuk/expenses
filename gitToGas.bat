@@ -11,4 +11,4 @@ cd ..
 
 :END
 endlocal
-
+pause
