@@ -130,7 +130,7 @@ var _reporting = {
       var otherDataRange = "'" + isName + "'!B2:H";
       var formula = "=query({ArrayFormula(if(len(" + txDateRage + "),(YEAR(" + txDateRage + ")*100+MONTH(" + txDateRage + ")),))," +
         "query(" + otherDataRange + ")}," +
-          "\"Select Col3,Col6,Col7,Col8,Sum(Col2) where Col1>0 group by Col6,Col7,Col8,Col3 Pivot Col1 Label Col3'Descr / Month'\",0)";
+          "\"Select Col3,Col6,Col7,Col8,Sum(Col2) where Col1>0 group by Col6,Col7,Col8,Col3 Pivot Col1 Label Col3'D/M'\",0)";
       mrSheet.getRange("B4").setFormula(formula);
       mrSheet.getRange("B4").setBackground("lightgray");
       
@@ -148,14 +148,15 @@ var _reporting = {
       mrSheet.hideRows(4);
       mrSheet.setFrozenColumns(5);
       mrSheet.setFrozenRows(4);
+      
+      SpreadsheetApp.flush();
+      mrSheet.autoResizeColumns(1, 5);
+      
       mrSheet.protect().setWarningOnly(true);
     },
     
     createWeeklyReportSheet: function() {
       var wrSheet = this.reportingSs.insertSheet("Report Weekly");
-      
-      wrSheet.getRange("A1").setValue("US Week Numbers here:");
-      wrSheet.getRange("B1").setValue("https://www.timeanddate.com/calendar/?year=2021&country=1&wno=1");
       
       wrSheet.getRange("E2").setValue("YEAR:");
       wrSheet.getRange("E3").setValue("WEEK:");
@@ -169,7 +170,7 @@ var _reporting = {
       var otherDataRange = "'" + isName + "'!B2:H";
       var formula = "=query({ArrayFormula(if(len(" + txDateRage + "),(YEAR(" + txDateRage + ")*100+WEEKNUM(" + txDateRage + ")),))," +
         "query(" + otherDataRange + ")}," +
-          "\"Select Col3,Col6,Col7,Col8,Sum(Col2) where Col1>0 group by Col6,Col7,Col8,Col3 Pivot Col1 Label Col3'Descr / Week №'\",0)";
+          "\"Select Col3,Col6,Col7,Col8,Sum(Col2) where Col1>0 group by Col6,Col7,Col8,Col3 Pivot Col1 Label Col3'D/W'\",0)";
       wrSheet.getRange("B4").setFormula(formula);
       wrSheet.getRange("B4").setBackground("lightgray");
       
@@ -184,6 +185,12 @@ var _reporting = {
       wrSheet.hideRows(4);
       wrSheet.setFrozenColumns(5);
       wrSheet.setFrozenRows(4);
+      
+      SpreadsheetApp.flush();
+      wrSheet.autoResizeColumns(1, 5);
+      wrSheet.getRange("A1").setValue("US Week Numbers here:");
+      wrSheet.getRange("B1").setValue("https://www.timeanddate.com/calendar/?year=2021&country=1&wno=1");
+
       wrSheet.protect().setWarningOnly(true);
     },
     
