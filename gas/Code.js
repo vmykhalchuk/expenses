@@ -13,7 +13,10 @@ function createNavMenuItems() {
   .addItem("Reporting...", "onMenuNavToReportingSpreadsheet")
   .addItem("Reporting House...", "onMenuNavToReportingHouseSpreadsheet");
   if (_reporting.getReportingSpreadsheetUrl()) {
-    navMenu.addItem("Reporting (Dev Test)...", "onMenuNavToReportingDevTestSpreadsheet")
+    navMenu.addItem("📊Reporting (Dev Test)...", "onMenuNavToReportingDevTestSpreadsheet")
+  }
+  if (_reporting.getReportingPinkCloudSpreadsheetUrl()) {
+    navMenu.addItem("📊Reporting Pink⛅...", "onMenuNavToReportingPinkCloudSpreadsheet")
   }
   navMenu.addToUi();
 }
@@ -30,6 +33,7 @@ function createZMenuItems() {
   .addItem("⚙️Register Viber Hook", "onMenuRegisterViberHook")
   .addItem("⚙️Register MonoBank Hook", "onMenuRegisterMonoBankHook")
   .addItem("⚙️Initialize Reporting Spreadsheet", "onMenuInitializeReportingSpreadsheet")
+  .addItem("⚙️Initialize Reporting Pink⛅ Spreadsheet", "onMenuInitializeReportingPinkCloudSpreadsheet")
   .addItem("💡Help", "onMenuHelp")
   .addSubMenu(devMenu);
   

@@ -31,6 +31,9 @@ var _c = {
     split4: "_split_4"
   },
   
+  currenciesList: ["", "USD", "EUR"],
+  currenciesFormats: ["[$грн.]#,##0.00", "[$$]#,##0.00", "[$€]#,##0.00"],
+  
   perf: {
     mono: {
       goBackRowsToCheckStatementIdDuplicate: 20

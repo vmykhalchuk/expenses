@@ -1,4 +1,4 @@
-var _i = function() {
+function _i() {
   util.sys.initializeUnderscore();
 };
 

@@ -23,6 +23,11 @@ function onMenuNavToReportingDevTestSpreadsheet() {
   util.misc.openUrl(reportingSsUrl);
 }
 
+function onMenuNavToReportingPinkCloudSpreadsheet() {
+  var reportingSsUrl = _reporting.getReportingPinkCloudSpreadsheetUrl();
+  util.misc.openUrl(reportingSsUrl);
+}
+
 function onMenuExecuteCommand() {
   var ui = SpreadsheetApp.getUi();
   var promptRes = ui.prompt("Enter command to execute:");
@@ -128,15 +133,33 @@ function onTrigger4ViberWebHookRefresh() {
 }
 
 function onMenuInitializeReportingSpreadsheet() {
+  var ui = SpreadsheetApp.getUi();
   if (_reporting.getReportingSpreadsheetUrl()) {
-    var ui = SpreadsheetApp.getUi();
     var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it and continue?", ui.ButtonSet.YES_NO);
     
     if (res/*.getSelectedButton()*/ === ui.Button.YES) {
       _reporting.deleteReportingSpreadsheet();
+    } else {
+      return;
     }
   }
   _reporting.initializeReportingSpreadsheet();
+  ui.alert("Done!");
+}
+
+function onMenuInitializeReportingPinkCloudSpreadsheet() {
+  var ui = SpreadsheetApp.getUi();
+  if (_reporting.getReportingPinkCloudSpreadsheetUrl()) {
+    var res = ui.alert("⚠️Reporting Pink⛅ Spreadsheet already exists!\n⚠️Remove it and continue?", ui.ButtonSet.YES_NO);
+    
+    if (res === ui.Button.YES) {
+      _reporting.deleteReportingPinkCloudSpreadsheet();
+    } else {
+      return;
+    }
+  }
+  _reporting.initializeReportingPinkCloudSpreadsheet();
+  ui.alert("Done!");
 }
 
 function onMenuHelp() {
