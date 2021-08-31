@@ -10,12 +10,10 @@ function createNavMenuItems() {
   // Create Navigation menu
   var navMenu = SpreadsheetApp.getUi().createMenu("🟈Nav")
   .addItem("⤓Bottom", "onMenuNavBottom")
-  .addItem("Reporting...", "onMenuNavToReportingSpreadsheet")
-  .addItem("Reporting House...", "onMenuNavToReportingHouseSpreadsheet");
-  if (_reporting.getReportingSpreadsheetUrl()) {
-    navMenu.addItem("📊Reporting (Dev Test)...", "onMenuNavToReportingDevTestSpreadsheet")
+  if (Reporting.instance.getSsUrl()) {
+    navMenu.addItem("📊Reporting...", "onMenuNavToReportingDevTestSpreadsheet")
   }
-  if (_reporting.getReportingPinkCloudSpreadsheetUrl()) {
+  if (ReportingPinkCloud.instance.getSsUrl()) {
     navMenu.addItem("📊Reporting Pink⛅...", "onMenuNavToReportingPinkCloudSpreadsheet")
   }
   navMenu.addToUi();

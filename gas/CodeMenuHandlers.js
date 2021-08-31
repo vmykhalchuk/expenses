@@ -19,12 +19,12 @@ function onMenuNavToReportingHouseSpreadsheet() {
 }
 
 function onMenuNavToReportingDevTestSpreadsheet() {
-  var reportingSsUrl = _reporting.getReportingSpreadsheetUrl();
+  var reportingSsUrl = Reporting.instance.getSsUrl();
   util.misc.openUrl(reportingSsUrl);
 }
 
 function onMenuNavToReportingPinkCloudSpreadsheet() {
-  var reportingSsUrl = _reporting.getReportingPinkCloudSpreadsheetUrl();
+  var reportingSsUrl = ReportingPinkCloud.instance.getSsUrl();
   util.misc.openUrl(reportingSsUrl);
 }
 
@@ -134,31 +134,33 @@ function onTrigger4ViberWebHookRefresh() {
 
 function onMenuInitializeReportingSpreadsheet() {
   var ui = SpreadsheetApp.getUi();
-  if (_reporting.getReportingSpreadsheetUrl()) {
-    var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it and continue?", ui.ButtonSet.YES_NO);
+  if (Reporting.instance.getSsUrl()) {
+    var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);
     
     if (res/*.getSelectedButton()*/ === ui.Button.YES) {
-      _reporting.deleteReportingSpreadsheet();
+      Reporting.instance.deleteSs();
+    } else if (res === ui.Button.NO) {
     } else {
       return;
     }
   }
-  _reporting.initializeReportingSpreadsheet();
+  Reporting.instance.reinitializeSs();
   ui.alert("Done!");
 }
 
 function onMenuInitializeReportingPinkCloudSpreadsheet() {
   var ui = SpreadsheetApp.getUi();
-  if (_reporting.getReportingPinkCloudSpreadsheetUrl()) {
-    var res = ui.alert("⚠️Reporting Pink⛅ Spreadsheet already exists!\n⚠️Remove it and continue?", ui.ButtonSet.YES_NO);
+  if (ReportingPinkCloud.instance.getSsUrl()) {
+    var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);
     
-    if (res === ui.Button.YES) {
-      _reporting.deleteReportingPinkCloudSpreadsheet();
+    if (res/*.getSelectedButton()*/ === ui.Button.YES) {
+      ReportingPinkCloud.instance.deleteSs();
+    } else if (res === ui.Button.NO) {
     } else {
       return;
     }
   }
-  _reporting.initializeReportingPinkCloudSpreadsheet();
+  ReportingPinkCloud.instance.reinitializeSs();
   ui.alert("Done!");
 }
 
