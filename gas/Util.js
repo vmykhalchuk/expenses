@@ -12,45 +12,6 @@ var util = {
       return s.charAt(0).toUpperCase() + s.slice(1);
     },
     
-    evalLocalCache: function(key, evalFunc, lockOnEvaluation) {
-      if (_c.cachesLocal.indexOf(key) == -1 && _c.caches.indexOf(key) == -1) {
-        throw new Error("Wrong local cache key: " + key);
-      }
-      if (!_util_cache[key]) {
-        var lock;
-        if (lockOnEvaluation) {
-          lock = LockService.getScriptLock();
-          lock.waitLock(5000);
-          if (_util_cache[key]) return _util_cache[key];
-        }
-        _util_cache[key] = evalFunc.call();
-        if (lockOnEvaluation) {
-          lock.releaseLock();
-        }
-      }
-      return _util_cache[key];
-    },
-    
-    evalCache: function(key, evalFunc, lockOnEvaluation) {
-      if (_c.caches.indexOf(key) == -1) {
-        throw new Error("Wrong cache key: " + key);
-      }
-      
-      return this.evalLocalCache(key, function() {
-        var cacheRes = CacheService.getScriptCache().get(key);
-        if (!cacheRes) {
-          cacheRes = evalFunc.call();
-          CacheService.getScriptCache().put(key, cacheRes, 21600 /*6h*/);
-        }
-        return cacheRes;
-      }, lockOnEvaluation);
-    },
-    
-    removeCacheEntry: function(key) {
-      _util_cache[key] = null;
-      CacheService.getScriptCache().remove(key);
-    },
-    
     mixTwoIterators: function(it1, it2, pickSideHandler) {
       return {
         it1: it1,
@@ -115,9 +76,8 @@ var util = {
     isUnderscoreInitialized: false,
     initializeUnderscore: function() {
       if (!this.isUnderscoreInitialized) {
-        var undercoreJSCode = util.comm.evalCache("underscoreJSCode",
-                                                  () => UrlFetchApp.fetch('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js').getContentText()
-        );
+        var lambda = () => UrlFetchApp.fetch('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js').getContentText();
+        var undercoreJSCode = Cache.i.lookupAndEvalValue(_c.caches.underscoreJSCode, lambda, true);
         eval(undercoreJSCode);
         this.isUnderscoreInitialized = true;
       }
@@ -175,7 +135,12 @@ var util = {
   viber: {
     augmentExpType: function(expType, houseSubType, miscSubType) {
       if (expType == _c.expTypes.week) return "Ⓦ";
+      if (expType == _c.expTypes.month) return "📅";
+      if (expType == _c.expTypes.kycja) return "🦊";
+      if (expType == _c.expTypes.extra) return "Ⓧ";
       if (expType && expType.startsWith("_")) return expType.substring(1);
+      
+      if (expType == _c.expTypes.house) expType = "🏡";
       if (expType && houseSubType) {
         expType += ":" + houseSubType;
       }
@@ -191,7 +156,7 @@ var util = {
     convertToUserFriendlyNumber: function(number) {
       var numberStr = "" + number;
       if (numberStr.startsWith("-")) {
-        numberStr = "−" + numberStr.substring(1) + "";//⨺
+        numberStr = /*"−"*/"⨺" + numberStr.substring(1) + "";//⨺
       }
       return numberStr;
     },
@@ -304,15 +269,16 @@ var util = {
       var expTypeUserFriendly = this.matchesOneOfTheWordsInMapKeysPartially(mainTypeStr, this.getUserFriendlyMapOfExpenseTypes());
       if (!expTypeUserFriendly) throw "Wrong expense type: " + expTypeStr;
       
+      expTypeStr = this.getUserFriendlyMapOfExpenseTypes()[expTypeUserFriendly];
       res["expTypeUserFriendly"] = expTypeUserFriendly;
-      res["expType"] = this.getUserFriendlyMapOfExpenseTypes()[expTypeUserFriendly];
+      res["expType"] = expTypeStr;
       
-      if (subTypeStr !== "" && expTypeUserFriendly === "house") {
+      if (subTypeStr !== "" && expTypeStr === "house") {
         var houseSubTypes = _sheets.getListOfHouseSubTypes();
         var subType = this.matchesOneOfTheWordsInListPartially(subTypeStr, houseSubTypes);
         if (!subType) throw "Wrong sub type: " + subTypeStr;
         res["subType"] = subType;
-      } else if (subTypeStr !== "" && expTypeUserFriendly === "misc") {
+      } else if (subTypeStr !== "" && expTypeStr === "misc") {
         var miscSubTypes = _sheets.getListOfMiscSubTypes();
         var subType = this.matchesOneOfTheWordsInListPartially(subTypeStr, miscSubTypes);
         if (!subType) throw "Wrong sub type: " + subTypeStr;
@@ -331,11 +297,12 @@ var util = {
         expenseTypes.forEach(el => (res[thiz._expenseTypeToUserFriendlyExpType(el)] = el));
         return res;
       };
-      return util.comm.evalLocalCache("userFriendlyListOfExpenseTypes", lambda, true);
+      return Cache.i.lookupAndEvalValue(_c.caches.userFriendlyListOfExpenseTypes, lambda, true);
     },
     
     _expenseTypeToUserFriendlyExpType: function(expType) {
-      return expType.replace(/_/g, '');
+      var happyExpType = this.augmentExpType(expType);
+      return expType.replace(/_/g, '') + ((happyExpType.length <= 3) && (happyExpType != expType) ? "(" + happyExpType + ")" : "");
     },
     
     getDescriptionFromCommandWords: function(words, startingFromWordNo) {

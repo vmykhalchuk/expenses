@@ -14,7 +14,7 @@ function runManualSheetsTest() {
   */
 }
 
-var __manualTestsSuitSheets = {
+var __manualTestSuiteSheets = {
   recordViberSender: function() {
     _sheets.recordViberSender("sender-007", "Bond", { postData: {contents: "fig vam"}})
   },

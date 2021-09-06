@@ -1,10 +1,14 @@
 class ReportingPinkCloud extends Reporting {
   
-  static get instance() {
+  static get inst() {
     if (!this._instPC) {
       this._instPC = new this();
     }
     return this._instPC;
+  }
+  
+  static get i() {
+    return this.inst;
   }
   
   constructor() {

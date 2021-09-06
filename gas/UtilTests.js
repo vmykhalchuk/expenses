@@ -1,4 +1,4 @@
-var __testsSuitUtil = {
+var __testSuiteUtil = {
   
   checkUnderscoreLibrary: function() {
     //util.sys.initializeUnderscore();

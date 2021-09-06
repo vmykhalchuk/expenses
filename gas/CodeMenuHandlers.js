@@ -8,27 +8,17 @@ function onMenuNavBottom() {
   activeSheet.setActiveSelection(range);
 }
 
-function onMenuNavToReportingSpreadsheet() {
-  var reportingSpreadsheetUrl = "https://docs.google.com/spreadsheets/d/1sbE2aPq8cySn7WxuU_ESgwx4qKsj_VSBQr-hfu6p06s/edit";
-  util.misc.openUrl(reportingSpreadsheetUrl);
-}
-
-function onMenuNavToReportingHouseSpreadsheet() {
-  var reportingHouseSpreadsheetUrl = "https://docs.google.com/spreadsheets/d/1LLrYroVBsMYfL0UobvxYvtUAQR4UqioqV0CmuX-jG1U/edit";
-  util.misc.openUrl(reportingHouseSpreadsheetUrl);
-}
-
 function onMenuNavToReportingDevTestSpreadsheet() {
-  var reportingSsUrl = Reporting.instance.getSsUrl();
+  var reportingSsUrl = Reporting.i.getSsUrl();
   util.misc.openUrl(reportingSsUrl);
 }
 
 function onMenuNavToReportingPinkCloudSpreadsheet() {
-  var reportingSsUrl = ReportingPinkCloud.instance.getSsUrl();
+  var reportingSsUrl = ReportingPinkCloud.i.getSsUrl();
   util.misc.openUrl(reportingSsUrl);
 }
 
-function onMenuExecuteCommand() {
+function onMenuZExecuteCommand() {
   var ui = SpreadsheetApp.getUi();
   var promptRes = ui.prompt("Enter command to execute:");
   var cmdToRun;
@@ -41,7 +31,7 @@ function onMenuExecuteCommand() {
   }
 }
 
-function onMenuRegisterMonoBankHook() {
+function onMenuZRegisterMonoBankHook() {
   
   var ui = SpreadsheetApp.getUi();
   
@@ -83,7 +73,7 @@ function onMenuRegisterMonoBankHook() {
   }
 }
 
-function onMenuRegisterViberHook() {
+function onMenuZRegisterViberHook() {
   if (!util.gas.checkWebAppState()) {
     SpreadsheetApp.getUi().alert(_codeConst.registerWebAppAlertMsg);
     return;
@@ -113,7 +103,7 @@ function onMenuRegisterViberHook() {
       
       onTrigger4ViberWebHookRefresh(); // register now - to avoid waiting for 30min
     } else {
-      // FIXME define URL if changes (when new deplyment):
+      // FIXME define URL if changes (when new deployment):
       // Move this URL to config or better to cache - and set it via Menu
       var gasUrl = "https://script.google.com/macros/s/AKfycbwrckqk8BqS5ah_PUqzn9nttYTAZcwu7RJknesXyRxp5K-ELkk/exec";
       _viber.registerWebHook(gasUrl);
@@ -132,12 +122,12 @@ function onTrigger4ViberWebHookRefresh() {
   _viber.registerWebHook(util.gas.getWebAppDevUrlWithAccessToken());
 }
 
-function onMenuInitializeReportingSpreadsheet() {
+function onMenuZInitializeReportingSpreadsheet() {
   var ui = SpreadsheetApp.getUi();
   if (Reporting.instance.getSsUrl()) {
     var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);
     
-    if (res/*.getSelectedButton()*/ === ui.Button.YES) {
+    if (res === ui.Button.YES) {
       Reporting.instance.deleteSs();
     } else if (res === ui.Button.NO) {
     } else {
@@ -148,12 +138,12 @@ function onMenuInitializeReportingSpreadsheet() {
   ui.alert("Done!");
 }
 
-function onMenuInitializeReportingPinkCloudSpreadsheet() {
+function onMenuZInitializeReportingPinkCloudSpreadsheet() {
   var ui = SpreadsheetApp.getUi();
   if (ReportingPinkCloud.instance.getSsUrl()) {
     var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);
     
-    if (res/*.getSelectedButton()*/ === ui.Button.YES) {
+    if (res === ui.Button.YES) {
       ReportingPinkCloud.instance.deleteSs();
     } else if (res === ui.Button.NO) {
     } else {
@@ -164,7 +154,7 @@ function onMenuInitializeReportingPinkCloudSpreadsheet() {
   ui.alert("Done!");
 }
 
-function onMenuHelp() {
+function onMenuZHelp() {
   var htmlOutput = HtmlService
   .createHtmlOutput('<h3>Viber ChatBot Token</h3>' +
                     'Can be found by visiting your Bot\'s page, or creating new one here: ' +
@@ -177,6 +167,10 @@ function onMenuHelp() {
   SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Z Help 💡');
 }
 
+function onMenuDevRunUnitTests() {
+  runAllUnitTestsInSpreadsheetApp();
+}
+
 function onMenuDevTest() {
   //SpreadsheetApp.getActiveSpreadsheet().toast('Task started', 'Status', -1);
   var ui = SpreadsheetApp.getUi();
@@ -185,15 +179,17 @@ function onMenuDevTest() {
 
 function onMenuDevCleanCacheEntry() {
   var ui = SpreadsheetApp.getUi();
-  var response = ui.prompt("Enter Cache Entry Key, or all:\n   e.g. " + _c.caches);
+  var response = ui.prompt(
+    "Enter Cache Entry Key, or all:\n   e.g. "
+    + Cache.i.getCacheKeysDescriptionAsString() +
+    "\n   [G] - global cache entry" +
+      "\n   [L] - local cache entry");
   if (response.getSelectedButton() == ui.Button.OK) {
     var key = response.getResponseText();
     if (key === "all") {
-      for (var k in _c.caches) {
-        util.comm.removeCacheEntry(_c.caches[k]);
-      }
+      Cache.i.removeAllCacheEntries();
     } else {
-      util.comm.removeCacheEntry(key);
+      Cache.i.removeCacheEntry(key);
     }
   }
 }

@@ -94,7 +94,7 @@ var multiPropertiesLock = {
   }
 };
 
-var __testsSuitMultiPropertiesLock = {
+var __testSuiteMultiPropertiesLock = {
   _validateLock: function() {
     var ttt = new Date().getTime();
     assertEquals("wrong", multiPropertiesLock._validateLock("" + (ttt+1000), 2000));

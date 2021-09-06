@@ -1,38 +1,41 @@
-function __getAllTestsSuits() {
+function __getAllTestSuites() {
   var res = new Array();
   var global = this;
   for (var k in global) {
-    if (!(global[k] instanceof Function) && k.startsWith("__testsSuit")) {
+    if (!(global[k] instanceof Function) && k.startsWith("__testSuite")) {
       var suit = global[k];
-      suit.name = k.substring("__testsSuit".length);
+      suit.name = k.substring("__testSuite".length);
       res.push(suit);
     }
   }
   return res;
 }
 
-function runUnitTestsInSpreadsheetApp() {
+function runAllUnitTestsInSpreadsheetApp() {
+  runAllUnitTests((msg) => SpreadsheetApp.getUi().alert(msg), true);
+}
+
+function runAllUnitTests(alertMsgCallback, verbose) {
   // Setup Unit Testing Framework
   addUnitTestAsserts(this);
   
-  var allTestsSuits = __getAllTestsSuits();
-  var ui = SpreadsheetApp.getUi();
+  var allTestSuites = __getAllTestSuites();
   
   var suitsCount = 0;
   var suitsFailed = 0;
   var totalTests = 0;
   var totalTestsFailed = 0;
-  for (var i in allTestsSuits) {
+  for (var i in allTestSuites) {
     suitsCount++;
     
-    var testsSuit = allTestsSuits[i];
-    var testsSuitName = "#" + i;
-    if (testsSuit && testsSuit.name) {
-      testsSuitName += " " + testsSuit.name;
+    var testSuite = allTestSuites[i];
+    var testSuiteName = "#" + i;
+    if (testSuite && testSuite.name) {
+      testSuiteName += " " + testSuite.name;
     }
     
-    if (!testsSuit) {
-      ui.alert("⛔️Tests suit miss configured: " + testsSuitName);
+    if (!testSuite) {
+      alertMsgCallback("⛔️TestSuite miss configured: " + testSuiteName);
       suitsFailed++;
       continue;
     }
@@ -40,19 +43,22 @@ function runUnitTestsInSpreadsheetApp() {
     var testResults = "";
     var testCases = 0;
     var testCasesFailed = 0;
-    for (var testKey in testsSuit) {
-      var testFunc = testsSuit[testKey];
+    for (var testKey in testSuite) {
+      var testFunc = testSuite[testKey];
       if (testFunc instanceof Function) {
         testCases++;
         var testCaseRes = null;
         try {
-          testCaseRes = testFunc.call(testsSuit);
+          testCaseRes = testFunc.call(testSuite);
         } catch (err) {
+          var errMsg = "⛔️ERROR: " + err;
+          if (verbose && err.stack) errMsg += "\n" + err.stack;
+          
           testCasesFailed++;
           if (testResults !== "") {
             testResults += "\n";
           }
-          testResults += "  " + testKey + ": " + (err ? " ERROR: " + err : "");
+          testResults += "  " + testKey + ": " + errMsg;
         }
       }
     }
@@ -61,30 +67,30 @@ function runUnitTestsInSpreadsheetApp() {
     totalTestsFailed += testCasesFailed;
     if (testCasesFailed >= 1) {
       suitsFailed++;
-      ui.alert("⚠️Test suit failed: " + testsSuitName + "\n" + testResults);
+      alertMsgCallback("⚠️Test Suite failed: " + testSuiteName + "\n" + testResults);
     }
   }
   
-  ui.alert("☣️️✔️Test suits failed/total: " + suitsFailed + "/" + suitsCount + 
+  alertMsgCallback("☣️️✔️Test suits failed/total: " + suitsFailed + "/" + suitsCount + 
            "\n☣️️✔️Test cases failed/total: " + totalTestsFailed + "/" + totalTests);
 }
 
-function addUnitTestAsserts(testsSuit) {
+function addUnitTestAsserts(testSuite) {
   var assertTrueTmplt = function(val, message) {
     if (val != true) throw "True is expected!" + (message ? "\n" + message : "");
   };
-  testsSuit.assertTrue = assertTrueTmplt;
+  testSuite.assertTrue = assertTrueTmplt;
   
   var assertFalseTmplt = function(val, message) {
     if (val != false) throw "False is expected!" + (message ? "\n" + message : "");
   };
-  testsSuit.assertFalse = assertFalseTmplt;
+  testSuite.assertFalse = assertFalseTmplt;
   
   var assertEqualsTmplt = function(expectedVal, actualVal, message) {
     if (expectedVal !== actualVal) throw "Expected: " + expectedVal + " but got: " + actualVal + 
       (message ? "\n" + message : "");
   };
-  testsSuit.assertEquals = assertEqualsTmplt;
+  testSuite.assertEquals = assertEqualsTmplt;
   
   var assertExceptionTmplt = function(func, exceptionMessage, message) {
     if (!func || !func instanceof Function) throw "func{" + func + "} is not a Function";
@@ -99,7 +105,7 @@ function addUnitTestAsserts(testsSuit) {
     }
     throw "" + func.name + " is expected to throw exception!" + (message ? "\n" + message : "");
   }
-  testsSuit.assertException = assertExceptionTmplt;
+  testSuite.assertException = assertExceptionTmplt;
   
   var assertNoExceptionTmplt = function(func, message) {
     if (!func || !func instanceof Function) throw "func{" + func + "} is not a Function";
@@ -110,7 +116,7 @@ function addUnitTestAsserts(testsSuit) {
         (message ? "\n" + message : "");
     }
   }
-  testsSuit.assertNoException = assertNoExceptionTmplt;
+  testSuite.assertNoException = assertNoExceptionTmplt;
   
-  return testsSuit;
+  return testSuite;
 }

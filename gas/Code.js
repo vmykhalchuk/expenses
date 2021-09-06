@@ -10,10 +10,10 @@ function createNavMenuItems() {
   // Create Navigation menu
   var navMenu = SpreadsheetApp.getUi().createMenu("🟈Nav")
   .addItem("⤓Bottom", "onMenuNavBottom")
-  if (Reporting.instance.getSsUrl()) {
+  if (Reporting.i.getSsUrl()) {
     navMenu.addItem("📊Reporting...", "onMenuNavToReportingDevTestSpreadsheet")
   }
-  if (ReportingPinkCloud.instance.getSsUrl()) {
+  if (ReportingPinkCloud.i.getSsUrl()) {
     navMenu.addItem("📊Reporting Pink⛅...", "onMenuNavToReportingPinkCloudSpreadsheet")
   }
   navMenu.addToUi();
@@ -22,17 +22,17 @@ function createNavMenuItems() {
 function createZMenuItems() {
   // Create developer menu
   var devMenu = SpreadsheetApp.getUi().createMenu("🛠️Dev")
-  .addItem("🛠️Run Unit Tests", "runUnitTestsInSpreadsheetApp")
+  .addItem("🐞Run Unit Tests", "onMenuDevRunUnitTests")
   .addItem("🚧Test", "onMenuDevTest")
   .addItem("✂Clean cache entry", "onMenuDevCleanCacheEntry");
   
   var zMenu = SpreadsheetApp.getUi().createMenu("⚙️Z")
-  .addItem("▶⏸Execute Command", "onMenuExecuteCommand")
-  .addItem("⚙️Register Viber Hook", "onMenuRegisterViberHook")
-  .addItem("⚙️Register MonoBank Hook", "onMenuRegisterMonoBankHook")
-  .addItem("⚙️Initialize Reporting Spreadsheet", "onMenuInitializeReportingSpreadsheet")
-  .addItem("⚙️Initialize Reporting Pink⛅ Spreadsheet", "onMenuInitializeReportingPinkCloudSpreadsheet")
-  .addItem("💡Help", "onMenuHelp")
+  .addItem("▶⏸Execute Command", "onMenuZExecuteCommand")
+  .addItem("⚙️Register Viber Hook", "onMenuZRegisterViberHook")
+  .addItem("⚙️Register MonoBank Hook", "onMenuZRegisterMonoBankHook")
+  .addItem("⚙️Initialize Reporting Spreadsheet", "onMenuZInitializeReportingSpreadsheet")
+  .addItem("⚙️Initialize Reporting Pink⛅ Spreadsheet", "onMenuZInitializeReportingPinkCloudSpreadsheet")
+  .addItem("💡Help", "onMenuZHelp")
   .addSubMenu(devMenu);
   
   zMenu.addToUi();

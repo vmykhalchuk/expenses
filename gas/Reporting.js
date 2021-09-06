@@ -1,17 +1,21 @@
 function _reportingManTest() {
-  Reporting.instance.reinitializeSs();
-  console.log(Reporting.instance.getSsUrl());
-  console.log(ReportingPinkCloud.instance.getSsUrl());
+  //Reporting.inst.reinitializeSs();
+  console.log(Reporting.inst.getSsUrl());
+  console.log(ReportingPinkCloud.i.getSsUrl());
   //recreateMenu();
 }
 
 class Reporting {
   
-  static get instance() {
+  static get inst() {
     if (!this._inst) {
       this._inst = new this();
     }
     return this._inst;
+  }
+  
+  static get i() {
+    return this.inst;
   }
   
   constructor() {

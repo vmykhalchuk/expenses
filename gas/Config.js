@@ -19,10 +19,10 @@ var _c = {
     cashWallet: "cash-wallet"
   },
   expTypes: {
-    month: "month",
+    month: "month", //📅
     extra: "extra", //Ⓧ or Ⓔ
-    kycja: "kycja",
-    house: "house",
+    kycja: "kycja", //🦊
+    house: "house", //🏡
     none: "_none",
     week: "_week",
     other: "_other",
@@ -112,6 +112,13 @@ var _c = {
     }
   },
   
-  caches: ["listOfExpenseTypes", "listOfHouseSubTypes", "listOfMiscSubTypes", "underscoreJSCode"],
-  cachesLocal: ["userFriendlyListOfExpenseTypes"]
+  // localOnly - wil not be cached in GAS Cache service, only locally
+  //    NOTE: only local cache can hold arbitrary objects, while global cache supports strings only
+  caches: {
+    listOfExpenseTypes: { name: "listOfExpenseTypes" },
+    listOfHouseSubTypes: { name: "listOfHouseSubTypes" },
+    listOfMiscSubTypes: { name: "listOfMiscSubTypes" },
+    underscoreJSCode: { name: "underscoreJSCode" },
+    userFriendlyListOfExpenseTypes: { name: "userFriendlyListOfExpenseTypes", localOnly: true }
+  }
 };

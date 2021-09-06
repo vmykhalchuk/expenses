@@ -381,20 +381,20 @@ var _sheets = {
   },
   
   getListOfExpenseTypes: function() {
-    var str = util.comm.evalCache(
-      "listOfExpenseTypes", () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.expenseTypes).join(','), true);
+    var lambda = () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.expenseTypes).join(',');
+    var str = Cache.i.lookupAndEvalValue(_c.caches.listOfExpenseTypes, lambda, true);
     return str.split(',');
   },
   
   getListOfHouseSubTypes: function() {
-    var str = util.comm.evalCache(
-      "listOfHouseSubTypes", () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.houseSubTypes).join(','), true);
+    var lambda = () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.houseSubTypes).join(',');
+    var str = Cache.i.lookupAndEvalValue(_c.caches.listOfHouseSubTypes, lambda, true);
     return str.split(',');
   },
   
   getListOfMiscSubTypes: function() {
-    var str = util.comm.evalCache(
-      "listOfMiscSubTypes", () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.miscSubTypes).join(','), true);
+    var lambda = () => this._getListOfVerticalStrings_int(_c.sheets.nr.config.miscSubTypes).join(',');
+    var str = Cache.i.lookupAndEvalValue(_c.caches.listOfMiscSubTypes, lambda, true);
     return str.split(',');
   },
   

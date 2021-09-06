@@ -238,7 +238,7 @@ var _commandEngineCommands = {
   },
   
   _processLastCommand: function(cmdObj, cmdCtxt, responseCallback) {
-    var rowsN = 5;
+    var rowsN = 10;
     var filterByExpType = null;
     if (cmdCtxt.wordsLC.length > 1) {
       if (isNaN(parseInt(cmdCtxt.wordsLC[1]))) {
@@ -348,7 +348,7 @@ var _commandEngineCommands = {
     var kredoBlackBalStr = util.viber.convertToUserFriendlyNumber(dataStatus.kredoBlackBalance);
     var text = "" + 
       "*◦ⓌWeekly:* " + weeklyStr + " {" + weeklyToProcessStr + "} | _(" + weekly2Str + ")_\n" + 
-        "*```◦Kycja:```* " + kycjaBalStr + "\n" +
+        "*```◦🦊Kycja:```* " + kycjaBalStr + "\n" +
           "*◦💴Wallet:* " + walletBalStr + "\n" + 
             "*◦💳Oleh's mono:* " + monoBlackBalStr + "\n" +
               "*◦💳Kredo black:* " + kredoBlackBalStr + "\n" +
@@ -414,7 +414,7 @@ var _commandEngineCommands = {
     var expenseTypesStr = Object.keys(util.viber.getUserFriendlyMapOfExpenseTypes()).join(", ");
     
     var manualMsg = "*Expense Types:* " + expenseTypesStr;
-    manualMsg += "\n*House Sub Types:* " + _sheets.getListOfHouseSubTypes().join(", ");
+    manualMsg += "\n*🏡House Sub Types:* " + _sheets.getListOfHouseSubTypes().join(", ");
     manualMsg += "\n*Misc Sub Types:* " + _sheets.getListOfMiscSubTypes().join(", ");
     var tookMs = new Date().getTime() - startTime;
     manualMsg += "\n*Took: " + tookMs + "ms*";
