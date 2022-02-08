@@ -1,6 +1,6 @@
 function runManualSheetsTest() {
-  var r = _sheets.getInTxLastNRows(3);
-  var z = r.length;
+  //var r = _sheets.getInTxLastNRows(3);
+  //var z = r.length;
   
   /*
   var r1 = util.comm.evalCache("zzz-002", () => { util.viber.parseRawExpenseType("house:zzz") }, true);

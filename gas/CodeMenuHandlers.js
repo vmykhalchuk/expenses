@@ -124,33 +124,33 @@ function onTrigger4ViberWebHookRefresh() {
 
 function onMenuZInitializeReportingSpreadsheet() {
   var ui = SpreadsheetApp.getUi();
-  if (Reporting.instance.getSsUrl()) {
+  if (Reporting.i.getSsUrl()) {
     var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);
     
     if (res === ui.Button.YES) {
-      Reporting.instance.deleteSs();
+      Reporting.i.deleteSs();
     } else if (res === ui.Button.NO) {
     } else {
       return;
     }
   }
-  Reporting.instance.reinitializeSs();
+  Reporting.i.reinitializeSs();
   ui.alert("Done!");
 }
 
 function onMenuZInitializeReportingPinkCloudSpreadsheet() {
   var ui = SpreadsheetApp.getUi();
-  if (ReportingPinkCloud.instance.getSsUrl()) {
+  if (ReportingPinkCloud.i.getSsUrl()) {
     var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);
     
     if (res === ui.Button.YES) {
-      ReportingPinkCloud.instance.deleteSs();
+      ReportingPinkCloud.i.deleteSs();
     } else if (res === ui.Button.NO) {
     } else {
       return;
     }
   }
-  ReportingPinkCloud.instance.reinitializeSs();
+  ReportingPinkCloud.i.reinitializeSs();
   ui.alert("Done!");
 }
 
@@ -175,6 +175,8 @@ function onMenuDevTest() {
   //SpreadsheetApp.getActiveSpreadsheet().toast('Task started', 'Status', -1);
   var ui = SpreadsheetApp.getUi();
   ui.alert("" + Object.keys(util.viber.getUserFriendlyMapOfExpenseTypes()).join(", "));
+  
+  _viber.sendReplyToViberBotUser("ftRbkaeNqyYv6rfv1ZmFrg==", "test message");
 }
 
 function onMenuDevCleanCacheEntry() {

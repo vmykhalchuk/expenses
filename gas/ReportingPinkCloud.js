@@ -94,7 +94,8 @@ class ReportingPinkCloud extends Reporting {
     aggSheet.getRange("D1").setValue("Equivalent UAH");
     aggSheet.getRange("A1:D1").setBackground("darkorange").setFontWeight("bold");
     
-    var houseSubTypes = _sheets.getListOfHouseSubTypes();
+    var houseSubTypes = [''];
+    houseSubTypes.push(... _sheets.getListOfHouseSubTypes());
     
     for (var i in houseSubTypes) {
       for (var j in _c.currenciesList) {
@@ -102,8 +103,10 @@ class ReportingPinkCloud extends Reporting {
         aggSheet.getRange("A" + rowNo).setValue(houseSubTypes[i]).setFontWeight("bold");
         aggSheet.getRange("B" + rowNo).setValue(_c.currenciesList[j]).setFontWeight("bold");
         
-        var formula = "=ARRAYFORMULA(SUM(\n" + 
-          "IF('Data'!$I$3:$G=A" + rowNo + ",\n" +
+        var equalToSubTypeStr = houseSubTypes[i] === '' ? '""' : ("A" + rowNo);
+        
+        var formula = "=ARRAYFORMULA(SUM(\n" +
+          "IF('Data'!$G$3:$G=" + equalToSubTypeStr + ",\n" +
             "IF('Data'!$C$3:$C=B" + rowNo + ",\n" +
               "IF('Data'!$F$3:$F=\"" + _c.txTypes.monoWhite + "\",\n" +
                 "IF('Data'!$B$3:$B<0,\n" +
@@ -119,7 +122,7 @@ class ReportingPinkCloud extends Reporting {
         var normalizedToUahFormula = "=C" + rowNo;
         if (j > 0) {
           normalizedToUahFormula = "=ARRAYFORMULA(SUM(\n" +
-            "IF('Data'!$I$3:$G=A" + rowNo + ",\n" +
+            "IF('Data'!$G$3:$G=" + equalToSubTypeStr + ",\n" +
               "IF('Data'!$C$3:$C=B" + rowNo + ",\n" +
                 "IF('Data'!$F$3:$F=\"" + _c.txTypes.monoWhite + "\",\n" +
                   "IF('Data'!$B$3:$B<0,\n" +
@@ -141,7 +144,8 @@ class ReportingPinkCloud extends Reporting {
     aggSheet.getRange("I1").setFormula('=GOOGLEFINANCE("CURRENCY:USDUAH")');
     aggSheet.getRange("G1:I1").setBackground("darkcyan").setFontWeight("bold");
     
-    var houseSubTypes = _sheets.getListOfHouseSubTypes();
+    var houseSubTypes = [''];
+    houseSubTypes.push(... _sheets.getListOfHouseSubTypes());
     
     for (var i in houseSubTypes) {
       var rowNo = 2 + i*1;

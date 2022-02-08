@@ -22,6 +22,7 @@ var _commandEngineCommands = {
     name: "💡Help",
     description: "Display list of commands, or usage and description of command",
     usage: "h[elp] [<command>]"
+    // handler: function(cmdObj, cmdCtxt, responseCallback) TODO refactore: move below _processHelpCommand method here
   },
   
   _processHelpCommand: function(cmdObj, cmdCtxt, responseCallback) {
@@ -347,11 +348,11 @@ var _commandEngineCommands = {
     var monoBlackBalStr = util.viber.convertToUserFriendlyNumber(dataStatus.monoBlackBalance);
     var kredoBlackBalStr = util.viber.convertToUserFriendlyNumber(dataStatus.kredoBlackBalance);
     var text = "" + 
-      "*◦ⓌWeekly:* " + weeklyStr + " {" + weeklyToProcessStr + "} | _(" + weekly2Str + ")_\n" + 
+      "*```◦ⓌWeekly:```* " + weeklyStr + " {" + weeklyToProcessStr + "} | _(" + weekly2Str + ")_\n" + 
         "*```◦🦊Kycja:```* " + kycjaBalStr + "\n" +
-          "*◦💴Wallet:* " + walletBalStr + "\n" + 
-            "*◦💳Oleh's mono:* " + monoBlackBalStr + "\n" +
-              "*◦💳Kredo black:* " + kredoBlackBalStr + "\n" +
+          "*```◦💴Wallet:```* " + walletBalStr + "\n" + 
+            "*```◦💳Oleh's mono:```* " + monoBlackBalStr + "\n" +
+              "*```◦💳Kredo black:```* " + kredoBlackBalStr + "\n" +
                 "";
     responseCallback(text);
   },
@@ -435,9 +436,31 @@ var _commandEngineCommands = {
     helpCmdName: "🧪test"
   },
   _processTestCommand: function(cmdObj, cmdCtxt, responseCallback) {
-    _sheets.recordInTxRow({
+    if (false) _sheets.recordInTxRow({
       status: "V-TST"
     }, JSON.stringify(cmdCtxt));
+    
+    responseCallback("Hi7!", null, null, {
+      "Type": "keyboard",
+      "DefaultHeight": false,
+      "BgColor": "#FFFFFF",
+      "Buttons": [{
+        "Columns": 2,
+        "Rows": 1,
+        "BgColor": "#2db9b9",
+        "BgMediaType": "gif",
+        "BgMedia": "http://www.url.by/test.gif",
+        "BgLoop": true,
+        "ActionType": "open-url",
+        "ActionBody": "www.tut.by",
+        "Image": "www.tut.by/img.jpg",
+        "Text": "Key text",
+        "TextVAlign": "middle",
+        "TextHAlign": "center",
+        "TextOpacity": 60,
+        "TextSize": "regular"
+      }]
+    });
   }
   
 };

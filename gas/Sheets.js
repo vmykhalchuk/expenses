@@ -29,20 +29,22 @@ var _sheets = {
     if (!skipFlush) SpreadsheetApp.flush();
   },
   
-  getDataStatus: function() {
+  getDataStatus: function(onlyKredoStatus) {
     var ss = SpreadsheetApp.getActive();
     var sheet = ss.getSheetByName(_c.sheets.data.name);
     
-    var dataStatus = {
-      kycja: sheet.getRange(_c.sheets.nr.status.kycjaAccountAvailable).getDisplayValue(),
-      wallet: sheet.getRange(_c.sheets.nr.balance.wallet).getDisplayValue(),
-      weekly: sheet.getRange(_c.sheets.nr.status.weeklyBalance).getDisplayValue(),
-      weekly2: sheet.getRange(_c.sheets.nr.status.weeklyBalance2).getDisplayValue(),
-      noExpTypeDefinedCount: sheet.getRange(_c.sheets.nr.status.noExpTypeDefined).getDisplayValue(),
-      kredoDebt: sheet.getRange(_c.sheets.nr.status.kredoDebt).getDisplayValue(),
-      monoBlackBalance: sheet.getRange(_c.sheets.nr.balance.monoBlack).getDisplayValue(),
-      kredoBlackBalance: sheet.getRange(_c.sheets.nr.balance.kredoBlack).getDisplayValue()
-    };
+    var dataStatus = {};
+    if (!onlyKredoStatus) {
+      dataStatus.kycja = sheet.getRange(_c.sheets.nr.status.kycjaAccountAvailable).getDisplayValue();
+      dataStatus.wallet = sheet.getRange(_c.sheets.nr.balance.wallet).getDisplayValue();
+      dataStatus.weekly = sheet.getRange(_c.sheets.nr.status.weeklyBalance).getDisplayValue();
+      dataStatus.weekly2 = sheet.getRange(_c.sheets.nr.status.weeklyBalance2).getDisplayValue();
+      dataStatus.noExpTypeDefinedCount = sheet.getRange(_c.sheets.nr.status.noExpTypeDefined).getDisplayValue();
+      dataStatus.monoBlackBalance = sheet.getRange(_c.sheets.nr.balance.monoBlack).getDisplayValue();
+    }
+    
+    dataStatus.kredoDebt = sheet.getRange(_c.sheets.nr.status.kredoDebt).getDisplayValue();
+    dataStatus.kredoBlackBalance = sheet.getRange(_c.sheets.nr.balance.kredoBlack).getDisplayValue();
     
     return dataStatus;
   },
