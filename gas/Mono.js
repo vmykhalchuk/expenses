@@ -128,9 +128,9 @@ var _mono = {
     console.log("response code: " + response.getResponseCode());
     console.log("response text: " + response.getContentText());
     if (response.getResponseCode() != 200) {
-      // TODO When call fails because of wrong authToken provided - remove it from Properties and let user know that it failed and should be reentered!
+      return "Failed! " + response.getResponseCode() + ": " + response.getContentText();
     }
-    return response;
+    return null;
   }
   
 }

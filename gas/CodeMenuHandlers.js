@@ -63,10 +63,15 @@ function onMenuZRegisterMonoBankHook() {
       
       onTrigger4MonoBankWebHookRefresh(); // register now - to avoid waiting for 30min
     } else {
-      // FIXME define URL if changes (when new deplyment):
+      // FIXME define URL if changes (when new deployment):
       // Move this URL to config or better to cache - and set it via Menu
       var gasUrl = "https://script.google.com/macros/s/AKfycbwrckqk8BqS5ah_PUqzn9nttYTAZcwu7RJknesXyRxp5K-ELkk/exec";
-      _mono.registerWebHook(gasUrl);
+      var resErr = _mono.registerWebHook(gasUrl);
+      if (resErr) {
+        ui.alert("⛔️" + resErr);
+      } else {
+        ui.alert("Registered successfully!");
+      }
     }
   } else {
     ui.alert("⚠️Provide MonoBank API Token to set web hook!");
@@ -115,7 +120,12 @@ function onMenuZRegisterViberHook() {
 }
 
 function onTrigger4MonoBankWebHookRefresh() {
-  _mono.registerWebHook(util.gas.getWebAppDevUrlWithAccessToken());
+  var resErr = _mono.registerWebHook(util.gas.getWebAppDevUrlWithAccessToken());
+  if (resErr) {
+    ui.alert("⛔️" + resErr);
+  } else {
+    ui.alert("Registered successfully!");
+  }
 }
 
 function onTrigger4ViberWebHookRefresh() {
@@ -123,6 +133,7 @@ function onTrigger4ViberWebHookRefresh() {
 }
 
 function onMenuZInitializeReportingSpreadsheet() {
+  Cache.i.removeAllCacheEntries();
   var ui = SpreadsheetApp.getUi();
   if (Reporting.i.getSsUrl()) {
     var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);
@@ -139,6 +150,7 @@ function onMenuZInitializeReportingSpreadsheet() {
 }
 
 function onMenuZInitializeReportingPinkCloudSpreadsheet() {
+  Cache.i.removeAllCacheEntries();
   var ui = SpreadsheetApp.getUi();
   if (ReportingPinkCloud.i.getSsUrl()) {
     var res = ui.alert("⚠️Reporting Spreadsheet already exists!\n⚠️Remove it (YES) or reinitialize (NO)?", ui.ButtonSet.YES_NO_CANCEL);

@@ -19,7 +19,7 @@ class ReportingPinkCloud extends Reporting {
   }
   
   _getSpreadsheetFileName() {
-    return "Z - 📊Reporting - Pink⛅";
+    return "Y - 📊Reporting - Pink⛅";
   }
   
   _createAllSheets() {

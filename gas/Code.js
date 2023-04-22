@@ -19,14 +19,14 @@ function createNavMenuItems() {
   navMenu.addToUi();
 }
 
-function createZMenuItems() {
+function createYMenuItems() {
   // Create developer menu
   var devMenu = SpreadsheetApp.getUi().createMenu("🛠️Dev")
   .addItem("🐞Run Unit Tests", "onMenuDevRunUnitTests")
   .addItem("🚧Test", "onMenuDevTest")
   .addItem("✂Clean cache entry", "onMenuDevCleanCacheEntry");
   
-  var zMenu = SpreadsheetApp.getUi().createMenu("⚙️Z")
+  var zMenu = SpreadsheetApp.getUi().createMenu("⚙️Y")
   .addItem("▶⏸Execute Command", "onMenuZExecuteCommand")
   .addItem("⚙️Register Viber Hook", "onMenuZRegisterViberHook")
   .addItem("⚙️Register MonoBank Hook", "onMenuZRegisterMonoBankHook")
@@ -43,12 +43,13 @@ function recreateMenu() {
   ss.removeMenu("🟈Nav");
   createNavMenuItems();
   ss.removeMenu("⚙️Z");
-  createZMenuItems();
+  ss.removeMenu("⚙️Y");
+  createYMenuItems();
 }
 
 function onOpen() {
   createNavMenuItems();
-  createZMenuItems();
+  createYMenuItems();
   
   // TODO validate if Viber/Mono Hook has failed, if yes - show popup stating this error!
   //SpreadsheetApp.getActiveSpreadsheet().toast('Viber Hook failed!', 'Status', -1);
